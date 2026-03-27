@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>404猫娘小爪机 · 猫爪聊天</title>
+  <title>404猫娘小爪机 · 猫爪聊天 + QQ空间</title>
   <style>
     * {
       margin: 0;
@@ -24,6 +24,8 @@
       --user-bubble: #409eff;
       --input: #ffffff;
       --shadow: rgba(0, 0, 0, 0.03);
+      --qzone-bg: #f0f2f5;
+      --qzone-card: #ffffff;
     }
 
     [dark] {
@@ -37,6 +39,8 @@
       --user-bubble: #3b8aff;
       --input: #363b46;
       --shadow: rgba(0, 0, 0, 0.2);
+      --qzone-bg: #1a1d23;
+      --qzone-card: #2c2f38;
     }
 
     body {
@@ -81,6 +85,34 @@
       gap: 8px;
       color: var(--text);
       letter-spacing: -0.3px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      color: var(--text2);
+      border: none;
+      padding: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 20px;
+    }
+    .tab-btn.active {
+      background: #409eff;
+      color: white;
+    }
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
     }
 
     .form-item {
@@ -152,28 +184,21 @@
       align-items: center;
     }
 
-    .button-group button {
-      flex: 1;
-    }
-
     .divider {
       height: 1px;
       background: var(--border);
       margin: 1.2rem 0;
     }
 
-    /* 头像行 */
     .avatar-row {
       display: flex;
       gap: 16px;
       margin-top: 4px;
     }
-
     .avatar-row > div {
       flex: 1;
       text-align: center;
     }
-
     .avatar {
       width: 60px;
       height: 60px;
@@ -191,14 +216,12 @@
       color: var(--text);
     }
 
-    /* 表情 */
     .emoji-panel {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       padding: 8px 0;
     }
-
     .emoji {
       font-size: 1.8rem;
       padding: 4px;
@@ -206,12 +229,8 @@
       border-radius: 12px;
       width: 2.4rem;
       text-align: center;
-      transition: background 0.1s;
     }
-
-    .emoji:hover {
-      background: var(--border);
-    }
+    .emoji:hover { background: var(--border); }
 
     .menu-btn {
       position: fixed;
@@ -231,7 +250,6 @@
       box-shadow: 0 4px 10px rgba(64,158,255,0.3);
       cursor: pointer;
     }
-
     .close-btn {
       position: absolute;
       top: 16px;
@@ -243,52 +261,66 @@
       height: 36px;
       border-radius: 30px;
       font-size: 1.4rem;
-      line-height: 1;
       padding: 0;
     }
 
-    /* ----- 聊天区 ----- */
-    .chat {
+    /* ----- 主内容区 ----- */
+    .main-content {
       flex: 1;
       margin-left: 360px;
       display: flex;
       flex-direction: column;
-      padding: 20px 16px 16px;
-      background: var(--chat-bg);
       height: 100vh;
+      background: var(--chat-bg);
+      overflow: hidden;
     }
-
-    .chat-title {
-      text-align: center;
-      font-size: 1.1rem;
-      font-weight: 600;
-      padding: 6px 0 14px;
-      color: var(--text);
+    .view-tabs {
+      display: flex;
+      background: var(--sidebar);
       border-bottom: 1px solid var(--border);
-      margin-bottom: 8px;
+      padding: 8px 16px;
+      gap: 12px;
     }
-
-    .msg-box {
+    .view-tab {
+      background: transparent;
+      border: none;
+      padding: 8px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 30px;
+      color: var(--text2);
+    }
+    .view-tab.active {
+      background: #409eff;
+      color: white;
+    }
+    .view-container {
       flex: 1;
       overflow-y: auto;
-      padding: 8px 4px;
+      padding: 16px;
+    }
+    .view-pane {
+      display: none;
+      height: 100%;
+      overflow-y: auto;
+    }
+    .view-pane.active {
+      display: block;
+    }
+
+    /* 聊天样式 */
+    .msg-box {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      -webkit-overflow-scrolling: touch;
+      padding: 8px 4px;
     }
-
     .msg-item {
       display: flex;
       gap: 8px;
       max-width: 88%;
     }
-
-    .msg-item.user {
-      margin-left: auto;
-      flex-direction: row-reverse;
-    }
-
+    .msg-item.user { margin-left: auto; flex-direction: row-reverse; }
     .msg-avatar {
       width: 38px;
       height: 38px;
@@ -296,15 +328,11 @@
       flex-shrink: 0;
       background: var(--border);
       object-fit: cover;
-      border: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.5rem;
-      background: var(--sidebar);
-      color: var(--text);
     }
-
     .msg-bubble {
       padding: 12px 16px;
       border-radius: 22px;
@@ -313,49 +341,161 @@
       word-break: break-word;
       box-shadow: 0 2px 5px var(--shadow);
     }
+    .msg-item.ai .msg-bubble { background: var(--ai-bubble); border-bottom-left-radius: 6px; }
+    .msg-item.user .msg-bubble { background: var(--user-bubble); color: white; border-bottom-right-radius: 6px; }
+    .input-bar {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      background: var(--sidebar);
+      border-top: 1px solid var(--border);
+    }
+    #input { flex: 1; padding: 12px 18px; border-radius: 30px; }
+    #send { width: 70px; height: 52px; border-radius: 32px; }
 
-    .msg-item.ai .msg-bubble {
-      background: var(--ai-bubble);
-      border-bottom-left-radius: 6px;
+    /* QQ空间样式 */
+    .qzone-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      background: var(--qzone-card);
+      padding: 16px;
+      border-radius: 20px;
+    }
+    .qzone-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+    .qzone-input-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .qzone-textarea {
+      width: 100%;
+      border: none;
+      background: var(--input);
+      padding: 12px;
+      border-radius: 20px;
+      resize: none;
+      font-size: 0.95rem;
+    }
+    .qzone-post-btn {
+      align-self: flex-end;
+      width: auto;
+      padding: 8px 20px;
+    }
+    .feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .feed-item {
+      background: var(--qzone-card);
+      border-radius: 20px;
+      padding: 16px;
+    }
+    .feed-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .feed-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+    }
+    .feed-info {
+      flex: 1;
+    }
+    .feed-name {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .feed-time {
+      font-size: 0.7rem;
+      color: var(--text2);
+    }
+    .feed-content {
+      margin: 12px 0;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    .feed-actions {
+      display: flex;
+      gap: 24px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      color: var(--text2);
+    }
+    .feed-action {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+    }
+    .feed-action:hover { color: #409eff; }
+    .like-active { color: #ff4d4f; }
+    .comments-area {
+      margin-top: 12px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .comment-item {
+      display: flex;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 0.85rem;
+    }
+    .comment-name {
+      font-weight: 500;
+      color: #409eff;
+    }
+    .comment-text {
       color: var(--text);
     }
-
-    .msg-item.user .msg-bubble {
-      background: var(--user-bubble);
-      color: white;
-      border-bottom-right-radius: 6px;
+    .add-comment {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .add-comment input {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+    .add-comment button {
+      width: auto;
+      padding: 8px 16px;
+      font-size: 0.85rem;
     }
 
     .tip, .loading {
       text-align: center;
       color: var(--text2);
       padding: 30px 10px;
-      font-size: 0.9rem;
     }
 
-    .input-bar {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      padding-top: 12px;
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.show { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .msg-item { max-width: 90%; }
     }
 
-    #input {
-      flex: 1;
-      padding: 14px 18px;
-      border-radius: 30px;
-      font-size: 1rem;
-      background: var(--input);
-    }
-
-    #send {
-      width: 70px;
-      height: 52px;
-      border-radius: 32px;
-      background: #409eff;
-    }
-
-    /* 长按菜单 */
     #longMenu {
       position: fixed;
       background: var(--sidebar);
@@ -365,37 +505,9 @@
       z-index: 99;
       box-shadow: 0 10px 25px rgba(0,0,0,0.2);
       min-width: 100px;
-      backdrop-filter: blur(5px);
     }
-
-    #longMenu div {
-      padding: 10px 20px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      color: var(--text);
-    }
-
-    #longMenu div:hover {
-      background: var(--border);
-    }
-
-    /* 手机适配 */
-    @media (max-width: 768px) {
-      .sidebar {
-        transform: translateX(-100%);
-        box-shadow: 4px 0 20px rgba(0,0,0,0.15);
-      }
-      .sidebar.show {
-        transform: translateX(0);
-      }
-      .chat {
-        margin-left: 0;
-        padding: 60px 12px 12px;
-      }
-      .msg-item {
-        max-width: 90%;
-      }
-    }
+    #longMenu div { padding: 10px 20px; cursor: pointer; }
+    #longMenu div:hover { background: var(--border); }
   </style>
 </head>
 <body>
@@ -403,577 +515,468 @@
   <div id="longMenu" style="display: none;"></div>
 
   <div class="app">
-    <!-- 侧边栏 配置面板 (新增模型列表 + 用户人设) -->
+    <!-- 侧边栏 配置面板 -->
     <div class="sidebar" id="sidebar">
       <button class="close-btn" id="closeBtn">✕</button>
-      <h2>🐾 404猫娘小爪机 · 定制版</h2>
-
-      <div class="form-item">
-        <label>🔐 API Key</label>
-        <input type="password" id="apiKey" placeholder="sk-..." autocomplete="off">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="chat-tab">💬 聊天设置</button>
+        <button class="tab-btn" data-tab="qzone-tab">📱 空间设置</button>
       </div>
-      <div class="form-item">
-        <label>🌐 API 地址</label>
-        <div class="button-group">
-          <input id="apiUrl" value="https://api.openai.com/v1/chat/completions" style="flex:3;">
-          <button class="small gray" id="fetchModelsBtn" style="flex:1;">拉取模型</button>
+
+      <!-- 聊天设置面板 -->
+      <div id="chat-tab" class="tab-pane active">
+        <h2>🐾 404猫娘小爪机 · 定制版</h2>
+        <div class="form-item"><label>🔐 API Key</label><input type="password" id="apiKey" placeholder="sk-..."></div>
+        <div class="form-item">
+          <label>🌐 API 地址</label>
+          <div class="button-group">
+            <input id="apiUrl" value="https://api.openai.com/v1/chat/completions">
+            <button class="small gray" id="fetchModelsBtn">拉取模型</button>
+          </div>
         </div>
+        <div class="form-item"><label><input type="checkbox" id="useBearer" checked> API Key使用Bearer前缀</label></div>
+        <div class="form-item">
+          <label>🧠 模型</label>
+          <select id="modelSelect"><option value="">-- 点击拉取模型 --</option></select>
+          <input id="model" placeholder="或手动输入" style="margin-top: 6px;" value="gpt-3.5-turbo">
+        </div>
+        <div class="divider"></div>
+        <div class="form-item"><label>🤖 AI 名称</label><input id="botName" value="404猫娘小爪机"></div>
+        <div class="form-item"><label>📝 AI 人设</label><textarea id="prompt">你是404猫娘小爪机，一只爱卖萌的猫娘，说话结尾带喵，喜欢用颜文字 (｡•̀ᴗ-)✧</textarea></div>
+        <div class="form-item"><label>👤 用户人设</label><textarea id="userPrompt">你是404小猫娘的主人。</textarea></div>
+        <div class="avatar-row">
+          <div><label>😺 AI头像</label><input type="file" accept="image/*" id="botAvatarInput" style="display:none;"><div class="avatar" id="botAvatar">🐱</div></div>
+          <div><label>👤 我的头像</label><input type="file" accept="image/*" id="userAvatarInput" style="display:none;"><div class="avatar" id="userAvatar">😏</div></div>
+        </div>
+        <div class="form-item"><label>🎨 聊天背景</label><input type="color" id="bgColor" value="#f5f7fa"></div>
+        <div class="form-item"><label>💬 我的气泡色</label><input type="color" id="userColor" value="#409eff"></div>
+        <div class="button-group"><button class="small gray" id="darkBtn">🌓 深色切换</button><button id="save">💾 保存配置</button></div>
       </div>
 
-      <!-- 新增：是否使用Bearer前缀的开关 -->
-      <div class="form-item">
-        <label style="display: flex; align-items: center; gap: 8px;">
-          <input type="checkbox" id="useBearer" checked style="width: auto; margin: 0;">
-          API Key使用Bearer前缀
-        </label>
-      </div>
-
-      <!-- 模型下拉选择 (新增) -->
-      <div class="form-item">
-        <label>🧠 可用模型 (选择或手动输入)</label>
-        <select id="modelSelect">
-          <option value="">-- 点击拉取模型 --</option>
-        </select>
-        <input id="model" placeholder="或手动输入模型名" style="margin-top: 6px;" value="gpt-3.5-turbo">
+      <!-- 空间设置面板 -->
+      <div id="qzone-tab" class="tab-pane">
+        <h2>📸 QQ空间 · 动态广场</h2>
+        <div class="form-item"><label>📛 空间昵称</label><input id="qzoneNickname" placeholder="显示昵称" value="猫娘小爪机"></div>
+        <div class="form-item"><label>🖼️ 空间头像</label><input type="file" accept="image/*" id="qzoneAvatarInput" style="display:none;"><div class="avatar" id="qzoneAvatar" style="width:80px;height:80px;font-size:3rem;">🐱</div></div>
+        <div class="form-item"><label>🤖 AI自动评论开关</label>
+          <label style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+            <input type="checkbox" id="autoCommentSwitch" checked> 发布说说后让AI自动评论
+          </label>
+        </div>
+        <div class="divider"></div>
+        <div class="form-item"><button class="small gray" id="clearQzoneBtn">🗑️ 清空所有动态</button></div>
+        <div class="form-item"><small>💡 AI评论只会出现在评论区，不会刷屏聊天记录~</small></div>
       </div>
 
       <div class="divider"></div>
-
       <div class="form-item">
-        <label>🤖 AI 名称</label>
-        <input id="botName" value="404猫娘小爪机">
-      </div>
-      <div class="form-item">
-        <label>📝 AI 人设提示词</label>
-        <textarea id="prompt" placeholder="例: 你是一只可爱的猫娘">你是404猫娘小爪机，一只爱卖萌的猫娘，说话结尾带喵，喜欢用颜文字 (｡•̀ᴗ-)✧</textarea>
-      </div>
-
-      <!-- 用户人设输入 (新增) 默认：你是404小猫娘的主人。 -->
-      <div class="form-item">
-        <label>👤 用户人设 (对AI的称呼/身份)</label>
-        <textarea id="userPrompt" placeholder="例如：你是我的主人">你是404小猫娘的主人。</textarea>
-      </div>
-
-      <div class="form-item avatar-row">
-        <div>
-          <label>😺 AI头像</label>
-          <input type="file" accept="image/*" id="botAvatarInput" style="display: none;">
-          <div class="avatar" id="botAvatar">🐱</div>
-        </div>
-        <div>
-          <label>👤 我的头像</label>
-          <input type="file" accept="image/*" id="userAvatarInput" style="display: none;">
-          <div class="avatar" id="userAvatar">😏</div>
-        </div>
-      </div>
-
-      <div class="form-item">
-        <label>🎨 聊天背景</label>
-        <input type="color" id="bgColor" value="#f5f7fa">
-      </div>
-      <div class="form-item">
-        <label>💬 我的气泡色</label>
-        <input type="color" id="userColor" value="#409eff">
-      </div>
-
-      <div class="form-item">
-        <button class="small gray" id="darkBtn">🌓 深色/浅色切换</button>
-      </div>
-      <div class="form-item">
-        <button id="save">💾 保存配置</button>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="form-item">
-        <label>😋 快捷表情</label>
         <div class="emoji-panel">
           <span class="emoji">😊</span><span class="emoji">😂</span><span class="emoji">🥰</span>
           <span class="emoji">😎</span><span class="emoji">🤔</span><span class="emoji">👍</span>
           <span class="emoji">❤️</span><span class="emoji">🎉</span><span class="emoji">🐱</span>
-          <span class="emoji">✨</span><span class="emoji">🙀</span><span class="emoji">🍕</span>
         </div>
       </div>
-
-      <div class="form-item" style="display: flex; gap: 6px; flex-wrap: wrap;">
+      <div class="button-group">
         <button class="small gray" id="clearChat">🧹 清空聊天</button>
         <button class="small gray" id="exportCfg">📤 导出配置</button>
         <button class="small gray" id="importCfg">📥 导入配置</button>
-        <input type="file" id="importFile" accept=".json" style="display: none;">
-      </div>
-
-      <div style="font-size:0.75rem; color: var(--text2); text-align: center; margin-top: 16px; opacity:0.7;">
-        ⚡ 数据本地 · 猫娘随行<br>
-        📢 提示：直接请求OpenAI官方API会跨域，建议使用反向代理
+        <input type="file" id="importFile" accept=".json" style="display:none;">
       </div>
     </div>
 
-    <!-- 聊天主区域 -->
-    <div class="chat" id="chat">
-      <div class="chat-title" id="title">404猫娘小爪机</div>
-      <div class="msg-box" id="msgBox">
-        <div class="tip">🐱 左边配置API，拉取模型，保存后开撩～</div>
+    <!-- 主内容区 -->
+    <div class="main-content">
+      <div class="view-tabs">
+        <button class="view-tab active" data-view="chat">💬 聊天</button>
+        <button class="view-tab" data-view="qzone">📸 QQ空间</button>
       </div>
-      <div class="input-bar">
-        <input id="input" placeholder="说点什么..." autocomplete="off">
-        <button id="send">发送</button>
+      <div class="view-container">
+        <!-- 聊天视图 -->
+        <div id="chat-view" class="view-pane active">
+          <div class="chat-title" style="text-align:center; padding:8px;" id="title">404猫娘小爪机</div>
+          <div class="msg-box" id="msgBox"></div>
+          <div class="input-bar">
+            <input id="input" placeholder="说点什么...">
+            <button id="send">发送</button>
+          </div>
+        </div>
+
+        <!-- QQ空间视图 -->
+        <div id="qzone-view" class="view-pane">
+          <div class="qzone-header">
+            <div class="qzone-avatar" id="qzoneHeaderAvatar">🐱</div>
+            <div class="qzone-input-area">
+              <textarea id="qzoneInput" class="qzone-textarea" rows="2" placeholder="分享新鲜事..."></textarea>
+              <button id="publishPostBtn" class="qzone-post-btn">📢 发布说说</button>
+            </div>
+          </div>
+          <div id="feedList" class="feed-list"></div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
     (function() {
-      // DOM 元素
+      // 配置
+      let config = JSON.parse(localStorage.getItem('catpawCfg')) || {
+        apiKey: '', apiUrl: 'https://api.openai.com/v1/chat/completions', model: 'gpt-3.5-turbo',
+        botName: '404猫娘小爪机', prompt: '你是404猫娘小爪机，一只爱卖萌的猫娘，说话结尾带喵，喜欢用颜文字 (｡•̀ᴗ-)✧',
+        userPrompt: '你是404小猫娘的主人。',
+        botAvatar: '🐱', userAvatar: '😏', bgColor: '#f5f7fa', userColor: '#409eff', dark: false, useBearer: true,
+        qzoneNickname: '猫娘小爪机', qzoneAvatar: '🐱',
+        autoComment: true  // AI自动评论开关
+      };
+      let messages = JSON.parse(localStorage.getItem('catpawMsg')) || [];
+      let qzoneFeeds = JSON.parse(localStorage.getItem('catpawQzone')) || [];
+
+      // DOM
       const sidebar = document.getElementById('sidebar');
-      const menuBtn = document.getElementById('menuBtn');
-      const closeBtn = document.getElementById('closeBtn');
       const msgBox = document.getElementById('msgBox');
       const input = document.getElementById('input');
       const sendBtn = document.getElementById('send');
-      const longMenu = document.getElementById('longMenu');
-      const useBearer = document.getElementById('useBearer');
-
-      // 配置初始值 —— 新增 userPrompt 字段，默认 "你是404小猫娘的主人。"
-      let config = JSON.parse(localStorage.getItem('catpawCfg')) || {
-        apiKey: '',
-        apiUrl: 'https://api.openai.com/v1/chat/completions',
-        model: 'gpt-3.5-turbo',
-        botName: '404猫娘小爪机',
-        prompt: '你是404猫娘小爪机，一只爱卖萌的猫娘，说话结尾带喵，喜欢用颜文字 (｡•̀ᴗ-)✧',
-        userPrompt: '你是404小猫娘的主人。',    // 新增用户人设
-        botAvatar: '🐱',
-        userAvatar: '😏',
-        bgColor: '#f5f7fa',
-        userColor: '#409eff',
-        dark: false,
-        useBearer: true // 新增：是否使用Bearer前缀
-      };
-
-      let messages = JSON.parse(localStorage.getItem('catpawMsg')) || [];
+      const feedList = document.getElementById('feedList');
 
       // 辅助函数
-      function isEmoji(str) {
-        return str && !str.startsWith('data:') && !str.startsWith('http') && str.length < 8;
-      }
+      function isEmoji(str) { return str && !str.startsWith('data:') && !str.startsWith('http') && str.length < 8; }
+      function escapeHtml(unsafe) { return unsafe.replace(/[&<>]/g, function(m) { if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m; }); }
 
-      // 加载UI
-      function loadUI() {
-        document.getElementById('apiKey').value = config.apiKey || '';
-        document.getElementById('apiUrl').value = config.apiUrl;
-        document.getElementById('model').value = config.model || 'gpt-3.5-turbo';
-        document.getElementById('botName').value = config.botName;
-        document.getElementById('prompt').value = config.prompt;
-        document.getElementById('userPrompt').value = config.userPrompt || '你是404小猫娘的主人。'; // 回显
-        document.getElementById('bgColor').value = config.bgColor;
-        document.getElementById('userColor').value = config.userColor;
-        useBearer.checked = config.useBearer !== false; // 加载Bearer开关状态
+      function saveConfig() { localStorage.setItem('catpawCfg', JSON.stringify(config)); }
+      function saveMessages() { localStorage.setItem('catpawMsg', JSON.stringify(messages)); }
+      function saveQzone() { localStorage.setItem('catpawQzone', JSON.stringify(qzoneFeeds)); }
 
-        // 头像
-        const botAvatarEl = document.getElementById('botAvatar');
-        const userAvatarEl = document.getElementById('userAvatar');
-        if (isEmoji(config.botAvatar)) {
-          botAvatarEl.innerText = config.botAvatar;
-          botAvatarEl.style.background = 'var(--sidebar)';
-          botAvatarEl.style.fontSize = '2.5rem';
-        } else {
-          botAvatarEl.innerHTML = `<img src="${config.botAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-          botAvatarEl.style.fontSize = 'initial';
-        }
-        if (isEmoji(config.userAvatar)) {
-          userAvatarEl.innerText = config.userAvatar;
-          userAvatarEl.style.background = 'var(--sidebar)';
-          userAvatarEl.style.fontSize = '2.5rem';
-        } else {
-          userAvatarEl.innerHTML = `<img src="${config.userAvatar}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-          userAvatarEl.style.fontSize = 'initial';
-        }
-
-        document.getElementById('title').innerText = config.botName;
-
-        if (config.dark) document.documentElement.setAttribute('dark', '');
-        else document.documentElement.removeAttribute('dark');
-
-        document.getElementById('chat').style.backgroundColor = config.bgColor;
-        document.documentElement.style.setProperty('--user-bubble', config.userColor);
-      }
-
-      // 渲染消息 (带emoji头像)
+      // 渲染聊天
       function renderMessages() {
         msgBox.innerHTML = '';
-        if (messages.length === 0) {
-          msgBox.innerHTML = '<div class="tip">🐱 没有消息，快和猫娘玩耍吧～</div>';
-          return;
-        }
+        if (messages.length === 0) { msgBox.innerHTML = '<div class="tip">🐱 没有消息，快和猫娘玩耍吧～</div>'; return; }
         messages.forEach(msg => {
           const item = document.createElement('div');
           item.className = `msg-item ${msg.role}`;
-
           const avatarVal = msg.role === 'user' ? config.userAvatar : config.botAvatar;
-          let avatarHtml = '';
-          if (isEmoji(avatarVal)) {
-            avatarHtml = `<div class="msg-avatar" style="font-size:1.7rem;">${avatarVal}</div>`;
-          } else {
-            avatarHtml = `<img class="msg-avatar" src="${avatarVal}" alt="avatar">`;
-          }
-
-          const escapedText = escapeHtml(msg.text).replace(/\n/g, '<br>');
-          item.innerHTML = `${avatarHtml}<div class="msg-bubble">${escapedText}</div>`;
+          let avatarHtml = isEmoji(avatarVal) ? `<div class="msg-avatar" style="font-size:1.7rem;">${avatarVal}</div>` : `<img class="msg-avatar" src="${avatarVal}">`;
+          item.innerHTML = `${avatarHtml}<div class="msg-bubble">${escapeHtml(msg.text).replace(/\n/g, '<br>')}</div>`;
           msgBox.appendChild(item);
         });
         msgBox.scrollTop = msgBox.scrollHeight;
       }
+      function addMessage(role, text) { messages.push({ role, text }); saveMessages(); renderMessages(); }
 
-      function escapeHtml(unsafe) {
-        return unsafe.replace(/[&<>"]/g, function(m) {
-          if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; if(m === '"') return '&quot;';
-          return m;
+      // 渲染QQ空间（带评论区）
+      function renderQzone() {
+        if (!feedList) return;
+        feedList.innerHTML = '';
+        if (qzoneFeeds.length === 0) { feedList.innerHTML = '<div class="tip">📭 还没有动态，发一条说说吧～</div>'; return; }
+        [...qzoneFeeds].reverse().forEach(feed => {
+          const feedDiv = document.createElement('div');
+          feedDiv.className = 'feed-item';
+          const avatarHtml = isEmoji(feed.avatar) ? `<div class="feed-avatar">${feed.avatar}</div>` : `<img class="feed-avatar" src="${feed.avatar}" style="object-fit:cover;">`;
+          
+          // 渲染评论区
+          let commentsHtml = '';
+          if (feed.comments && feed.comments.length > 0) {
+            commentsHtml = `<div class="comments-area">`;
+            feed.comments.forEach(comment => {
+              commentsHtml += `<div class="comment-item">
+                <span class="comment-name">${escapeHtml(comment.name)}：</span>
+                <span class="comment-text">${escapeHtml(comment.text)}</span>
+              </div>`;
+            });
+            commentsHtml += `</div>`;
+          }
+          
+          // 添加评论输入框
+          const commentFormHtml = `<div class="add-comment">
+            <input type="text" placeholder="写评论..." id="comment-input-${feed.id}">
+            <button class="comment-submit" data-id="${feed.id}">💬 评论</button>
+          </div>`;
+          
+          feedDiv.innerHTML = `
+            <div class="feed-header">
+              ${avatarHtml}
+              <div class="feed-info"><div class="feed-name">${escapeHtml(feed.nickname)}</div><div class="feed-time">${new Date(feed.timestamp).toLocaleString()}</div></div>
+            </div>
+            <div class="feed-content">${escapeHtml(feed.content).replace(/\n/g, '<br>')}</div>
+            <div class="feed-actions">
+              <div class="feed-action like-btn" data-id="${feed.id}">❤️ ${feed.likes || 0}</div>
+              <div class="feed-action comment-toggle" data-id="${feed.id}">💬 ${feed.comments?.length || 0}</div>
+            </div>
+            ${commentsHtml}
+            ${commentFormHtml}
+          `;
+          feedList.appendChild(feedDiv);
+        });
+        
+        // 绑定点赞事件
+        document.querySelectorAll('.like-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => { e.stopPropagation(); likeFeed(parseInt(btn.dataset.id)); });
+        });
+        
+        // 绑定评论提交事件
+        document.querySelectorAll('.comment-submit').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const feedId = parseInt(btn.dataset.id);
+            const inputEl = document.getElementById(`comment-input-${feedId}`);
+            const commentText = inputEl.value.trim();
+            if (commentText) {
+              addCommentToFeed(feedId, config.userPrompt.split('是')[1]?.trim() || '主人', commentText);
+              inputEl.value = '';
+            }
+          });
         });
       }
 
-      function addMessage(role, text) {
-        messages.push({ role, text });
-        localStorage.setItem('catpawMsg', JSON.stringify(messages));
-        renderMessages();
+      function likeFeed(id) {
+        const feed = qzoneFeeds.find(f => f.id === id);
+        if (feed) { feed.likes = (feed.likes || 0) + 1; saveQzone(); renderQzone(); }
       }
 
-      // ---------- 修复：拉取模型列表 (优化地址处理+错误提示) ----------
-      async function fetchModels() {
-        const apiKey = document.getElementById('apiKey').value.trim();
-        const baseUrl = document.getElementById('apiUrl').value.trim();
-        
-        // 基础校验
-        if (!apiKey) { 
-          alert('请先填写API Key'); 
-          return; 
-        }
-        if (!baseUrl) {
-          alert('请填写API地址');
-          return;
-        }
-
-        // 修复：更鲁棒的models地址生成逻辑
-        let modelsUrl = '';
-        try {
-          const urlObj = new URL(baseUrl);
-          // 方法1：如果是chat/completions路径，替换为models
-          if (urlObj.pathname.includes('/chat/completions')) {
-            modelsUrl = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname.replace('/chat/completions', '/models')}`;
-          } 
-          // 方法2：如果是v1路径，直接拼接/models
-          else if (urlObj.pathname.includes('/v1/')) {
-            modelsUrl = `${urlObj.protocol}//${urlObj.host}/v1/models`;
-          }
-          // 方法3：默认在域名后加/models
-          else {
-            modelsUrl = `${urlObj.protocol}//${urlObj.host}/models`;
-          }
-        } catch (err) {
-          alert('API地址格式错误：' + err.message);
-          return;
-        }
-
-        const selectEl = document.getElementById('modelSelect');
-        selectEl.innerHTML = '<option value="">加载中...</option>';
-        
-        // 构建请求头
-        const headers = {
-          'Content-Type': 'application/json'
-        };
-        // 修复：可选的Bearer前缀
-        if (useBearer.checked) {
-          headers['Authorization'] = `Bearer ${apiKey}`;
-        } else {
-          headers['Authorization'] = apiKey;
-        }
-
-        try {
-          // 修复：添加超时和更全面的错误处理
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
-
-          const res = await fetch(modelsUrl, {
-            method: 'GET',
-            headers: headers,
-            signal: controller.signal,
-            mode: 'cors'
-          });
-
-          clearTimeout(timeoutId);
-
-          if (!res.ok) {
-            let errMsg = `请求失败 [${res.status}]`;
-            // 解析错误详情
-            try {
-              const errData = await res.json();
-              errMsg += `: ${errData.error?.message || JSON.stringify(errData).slice(0, 100)}`;
-            } catch {
-              const errText = await res.text();
-              errMsg += `: ${errText.slice(0, 100)}`;
-            }
-            // 跨域提示
-            if (res.status === 0) {
-              errMsg += '\n\n⚠️ 可能是跨域(CORS)限制！建议：\n1. 使用支持CORS的API反向代理\n2. 部署到服务器运行\n3. 浏览器安装跨域插件临时测试';
-            }
-            throw new Error(errMsg);
-          }
-
-          const data = await res.json();
-          // 适配多种模型列表返回格式
-          let modelList = [];
-          if (data.data && Array.isArray(data.data)) {
-            modelList = data.data;
-          } else if (Array.isArray(data)) {
-            modelList = data;
-          } else {
-            throw new Error('返回格式不支持：未找到模型列表数组');
-          }
-
-          // 渲染模型列表
-          if (modelList.length === 0) {
-            selectEl.innerHTML = '<option value="">-- 未找到可用模型 --</option>';
-            return;
-          }
-
-          selectEl.innerHTML = '<option value="">-- 选择模型 --</option>';
-          modelList.forEach(m => {
-            if (m.id) { // OpenAI格式
-              const opt = document.createElement('option');
-              opt.value = m.id;
-              opt.textContent = m.id;
-              selectEl.appendChild(opt);
-            } else if (m.name) { // 其他自定义格式
-              const opt = document.createElement('option');
-              opt.value = m.name;
-              opt.textContent = m.name;
-              selectEl.appendChild(opt);
-            }
-          });
-
-        } catch (err) {
-          let errMsg = '拉取模型失败: ' + err.message;
-          // 超时提示
-          if (err.name === 'AbortError') {
-            errMsg = '请求超时（10秒），请检查网络或API地址';
-          }
-          alert(errMsg);
-          selectEl.innerHTML = '<option value="">-- 拉取失败，可手动输入 --</option>';
+      function addCommentToFeed(feedId, commenterName, commentText) {
+        const feed = qzoneFeeds.find(f => f.id === feedId);
+        if (feed) {
+          if (!feed.comments) feed.comments = [];
+          feed.comments.push({ name: commenterName, text: commentText, timestamp: Date.now() });
+          saveQzone();
+          renderQzone();
         }
       }
 
-      // 监听模型选择下拉，同步到输入框
-      document.getElementById('modelSelect').addEventListener('change', function(e) {
-        if (e.target.value) {
-          document.getElementById('model').value = e.target.value;
-        }
-      });
-
-      document.getElementById('fetchModelsBtn').addEventListener('click', fetchModels);
-
-      // ---------- 发送消息 (优化请求头+错误处理) ----------
-      async function sendMessage() {
-        const text = input.value.trim();
-        if (!text) return;
-        if (!config.apiKey) { 
-          alert('请先填写并保存API Key'); 
-          return; 
-        }
-        input.value = '';
-        addMessage('user', text);
-
-        // 构建消息: system = AI人设 + 用户人设
-        const aiPrompt = config.prompt || '你是猫娘';
-        const userPrompt = config.userPrompt || '你是我的主人';
-        const systemContent = `${aiPrompt}\n(重要：${userPrompt})`;
-
-        const apiMessages = [
-          { role: 'system', content: systemContent },
-          ...messages.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }))
-        ];
-
-        const loadDiv = document.createElement('div');
-        loadDiv.className = 'loading';
-        loadDiv.innerText = '🐾 猫娘歪头思考中...';
-        msgBox.appendChild(loadDiv);
-        msgBox.scrollTop = msgBox.scrollHeight;
-
+      // AI自动评论（只添加到评论区，不同步到聊天记录）
+      async function autoCommentOnPost(feedId, feedContent) {
+        if (!config.autoComment) return;
+        if (!config.apiKey) { console.log('未配置API Key，跳过AI评论'); return; }
+        
+        const aiName = config.botName || '猫娘';
+        const systemPrompt = `${config.prompt}\n你的主人刚刚在QQ空间发了一条说说："${feedContent.slice(0, 100)}"\n请根据你的人设，写一条简短的评论回复这条说说。评论要自然、有趣，符合你的性格。只输出评论内容，不要加引号或其他标记。`;
+        
         try {
-          // 构建请求头
-          const headers = {
-            'Content-Type': 'application/json'
-          };
-          // 修复：统一的Bearer前缀处理
-          if (config.useBearer) {
-            headers['Authorization'] = `Bearer ${config.apiKey}`;
-          } else {
-            headers['Authorization'] = config.apiKey;
-          }
-
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30秒超时
-
+          const headers = { 'Content-Type': 'application/json' };
+          if (config.useBearer) headers['Authorization'] = `Bearer ${config.apiKey}`;
+          else headers['Authorization'] = config.apiKey;
+          
           const res = await fetch(config.apiUrl, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify({
               model: config.model,
-              messages: apiMessages,
-              temperature: 0.8,
-              max_tokens: 1500
-            }),
-            signal: controller.signal,
-            mode: 'cors'
+              messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: '请评论这条说说' }],
+              temperature: 0.9,
+              max_tokens: 150
+            })
           });
-
-          clearTimeout(timeoutId);
-
-          if (!res.ok) {
-            const errText = await res.text();
-            let errMsg = `HTTP ${res.status}: ${errText.slice(0, 200)}`;
-            // 跨域提示
-            if (res.status === 0) {
-              errMsg += '\n\n⚠️ 跨域(CORS)限制！请使用反向代理API';
-            }
-            throw new Error(errMsg);
-          }
-
+          
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const data = await res.json();
-          const reply = data.choices?.[0]?.message?.content || '没有收到回复内容';
-          addMessage('ai', reply);
+          const comment = data.choices?.[0]?.message?.content?.trim() || '喵~ 这个说说好有趣！(｡•̀ᴗ-)✧';
+          
+          // 添加AI评论到动态（不同步到聊天记录）
+          const feed = qzoneFeeds.find(f => f.id === feedId);
+          if (feed) {
+            if (!feed.comments) feed.comments = [];
+            feed.comments.push({ name: aiName, text: comment, timestamp: Date.now() });
+            saveQzone();
+            renderQzone();
+          }
         } catch (err) {
-          addMessage('ai', '⚠️ 请求出错: ' + err.message);
-        } finally {
-          if (loadDiv.parentNode) loadDiv.remove();
+          console.error('AI评论失败:', err);
         }
       }
 
-      // 保存配置 (新增useBearer)
-      document.getElementById('save').addEventListener('click', function() {
+      // 发布说说并触发AI评论
+      async function publishPost() {
+        const content = document.getElementById('qzoneInput').value.trim();
+        if (!content) return;
+        
+        const newFeed = {
+          id: Date.now(),
+          nickname: config.qzoneNickname || '猫娘小爪机',
+          avatar: config.qzoneAvatar,
+          content: content,
+          timestamp: Date.now(),
+          likes: 0,
+          comments: []
+        };
+        qzoneFeeds.unshift(newFeed);
+        saveQzone();
+        document.getElementById('qzoneInput').value = '';
+        renderQzone();
+        
+        // 触发AI自动评论（异步，不阻塞界面）
+        autoCommentOnPost(newFeed.id, content);
+      }
+
+      // 拉取模型
+      async function fetchModels() {
+        const apiKey = document.getElementById('apiKey').value.trim();
+        const baseUrl = document.getElementById('apiUrl').value.trim();
+        if (!apiKey) { alert('请填写API Key'); return; }
+        let modelsUrl = baseUrl.replace('/chat/completions', '/models');
+        if (!modelsUrl.includes('/models')) modelsUrl = modelsUrl.replace(/\/$/, '') + '/models';
+        const selectEl = document.getElementById('modelSelect');
+        selectEl.innerHTML = '<option>加载中...</option>';
+        const headers = { 'Content-Type': 'application/json' };
+        if (document.getElementById('useBearer').checked) headers['Authorization'] = `Bearer ${apiKey}`;
+        else headers['Authorization'] = apiKey;
+        try {
+          const res = await fetch(modelsUrl, { method: 'GET', headers });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          let modelList = data.data || data;
+          if (!Array.isArray(modelList)) modelList = [];
+          selectEl.innerHTML = '<option value="">-- 选择模型 --</option>';
+          modelList.forEach(m => { if (m.id) { let opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.id; selectEl.appendChild(opt); } });
+        } catch (err) { alert('拉取失败: ' + err.message); selectEl.innerHTML = '<option value="">-- 拉取失败 --</option>'; }
+      }
+
+      // 发送聊天消息
+      async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+        if (!config.apiKey) { alert('请先保存API Key'); return; }
+        input.value = '';
+        addMessage('user', text);
+
+        // AI能看到最近的动态作为背景知识
+        const recentFeeds = qzoneFeeds.slice(0, 3).map(f => `「${f.nickname}：${f.content.slice(0, 50)}」`).join('；');
+        const systemContent = `${config.prompt}\n(重要：${config.userPrompt})\n主人最近的空间动态：${recentFeeds || '暂无'}。你可以偶尔提及，但不需要主动评论。`;
+        
+        const apiMessages = [
+          { role: 'system', content: systemContent },
+          ...messages.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }))
+        ];
+        
+        const loadDiv = document.createElement('div'); loadDiv.className = 'loading'; loadDiv.innerText = '🐾 猫娘歪头思考中...';
+        msgBox.appendChild(loadDiv); msgBox.scrollTop = msgBox.scrollHeight;
+        try {
+          const headers = { 'Content-Type': 'application/json' };
+          if (config.useBearer) headers['Authorization'] = `Bearer ${config.apiKey}`;
+          else headers['Authorization'] = config.apiKey;
+          const res = await fetch(config.apiUrl, {
+            method: 'POST', headers, body: JSON.stringify({ model: config.model, messages: apiMessages, temperature: 0.8, max_tokens: 800 })
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const data = await res.json();
+          const reply = data.choices?.[0]?.message?.content || '喵？没有回复内容';
+          addMessage('ai', reply);
+        } catch (err) { addMessage('ai', '⚠️ 请求出错: ' + err.message); }
+        finally { if (loadDiv.parentNode) loadDiv.remove(); }
+      }
+
+      // UI加载配置
+      function loadUI() {
+        document.getElementById('apiKey').value = config.apiKey || '';
+        document.getElementById('apiUrl').value = config.apiUrl;
+        document.getElementById('model').value = config.model;
+        document.getElementById('botName').value = config.botName;
+        document.getElementById('prompt').value = config.prompt;
+        document.getElementById('userPrompt').value = config.userPrompt || '';
+        document.getElementById('bgColor').value = config.bgColor;
+        document.getElementById('userColor').value = config.userColor;
+        document.getElementById('useBearer').checked = config.useBearer !== false;
+        document.getElementById('qzoneNickname').value = config.qzoneNickname || '猫娘小爪机';
+        document.getElementById('autoCommentSwitch').checked = config.autoComment !== false;
+        
+        config.qzoneAvatar = config.qzoneAvatar || '🐱';
+        const qzoneAvatarDiv = document.getElementById('qzoneAvatar');
+        if (isEmoji(config.qzoneAvatar)) { qzoneAvatarDiv.innerText = config.qzoneAvatar; qzoneAvatarDiv.style.fontSize = '3rem'; }
+        else { qzoneAvatarDiv.innerHTML = `<img src="${config.qzoneAvatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`; }
+        document.getElementById('qzoneHeaderAvatar').innerHTML = isEmoji(config.qzoneAvatar) ? config.qzoneAvatar : `<img src="${config.qzoneAvatar}" style="width:100%;height:100%;border-radius:50%;">`;
+        
+        const botAvatarDiv = document.getElementById('botAvatar');
+        if (isEmoji(config.botAvatar)) { botAvatarDiv.innerText = config.botAvatar; botAvatarDiv.style.fontSize = '2.5rem'; }
+        else { botAvatarDiv.innerHTML = `<img src="${config.botAvatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`; }
+        const userAvatarDiv = document.getElementById('userAvatar');
+        if (isEmoji(config.userAvatar)) { userAvatarDiv.innerText = config.userAvatar; userAvatarDiv.style.fontSize = '2.5rem'; }
+        else { userAvatarDiv.innerHTML = `<img src="${config.userAvatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`; }
+        
+        document.getElementById('title').innerText = config.botName;
+        if (config.dark) document.documentElement.setAttribute('dark', '');
+        else document.documentElement.removeAttribute('dark');
+        document.getElementById('chat-view').style.backgroundColor = config.bgColor;
+        document.documentElement.style.setProperty('--user-bubble', config.userColor);
+      }
+
+      function saveAll() {
         config.apiKey = document.getElementById('apiKey').value.trim();
         config.apiUrl = document.getElementById('apiUrl').value.trim();
         config.model = document.getElementById('model').value.trim();
         config.botName = document.getElementById('botName').value.trim() || '404猫娘小爪机';
-        config.prompt = document.getElementById('prompt').value.trim() || '可爱猫娘';
-        config.userPrompt = document.getElementById('userPrompt').value.trim() || '你是404小猫娘的主人。';
+        config.prompt = document.getElementById('prompt').value.trim();
+        config.userPrompt = document.getElementById('userPrompt').value.trim();
         config.bgColor = document.getElementById('bgColor').value;
         config.userColor = document.getElementById('userColor').value;
-        config.useBearer = useBearer.checked; // 保存Bearer开关状态
-        // 头像已通过文件上传修改config，但需要保留文本emoji不变
-        localStorage.setItem('catpawCfg', JSON.stringify(config));
-        document.getElementById('title').innerText = config.botName;
-        document.getElementById('chat').style.backgroundColor = config.bgColor;
-        document.documentElement.style.setProperty('--user-bubble', config.userColor);
-        loadUI();  // 刷新显示
+        config.useBearer = document.getElementById('useBearer').checked;
+        config.qzoneNickname = document.getElementById('qzoneNickname').value.trim() || '猫娘小爪机';
+        config.autoComment = document.getElementById('autoCommentSwitch').checked;
+        saveConfig();
+        loadUI();
         alert('配置已保存');
         sidebar.classList.remove('show');
-      });
+      }
 
-      // 头像上传处理
-      function handleAvatarInput(inputEl, key, displayEl) {
-        inputEl.addEventListener('change', function(e) {
+      // 头像上传
+      function setupAvatarUpload(triggerId, inputId, key, displayId) {
+        document.getElementById(triggerId).addEventListener('click', () => document.getElementById(inputId).click());
+        document.getElementById(inputId).addEventListener('change', function(e) {
           const file = e.target.files[0];
           if (!file) return;
           const reader = new FileReader();
-          reader.onload = (ev) => {
-            config[key] = ev.target.result;
-            displayEl.innerHTML = `<img src="${ev.target.result}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-            displayEl.style.fontSize = 'initial';
-          };
+          reader.onload = (ev) => { config[key] = ev.target.result; saveConfig(); loadUI(); };
           reader.readAsDataURL(file);
         });
       }
+      setupAvatarUpload('botAvatar', 'botAvatarInput', 'botAvatar', 'botAvatar');
+      setupAvatarUpload('userAvatar', 'userAvatarInput', 'userAvatar', 'userAvatar');
+      setupAvatarUpload('qzoneAvatar', 'qzoneAvatarInput', 'qzoneAvatar', 'qzoneAvatar');
 
-      const botAvatarDiv = document.getElementById('botAvatar');
-      const userAvatarDiv = document.getElementById('userAvatar');
-      document.getElementById('botAvatar').addEventListener('click', () => document.getElementById('botAvatarInput').click());
-      document.getElementById('userAvatar').addEventListener('click', () => document.getElementById('userAvatarInput').click());
-      handleAvatarInput(document.getElementById('botAvatarInput'), 'botAvatar', botAvatarDiv);
-      handleAvatarInput(document.getElementById('userAvatarInput'), 'userAvatar', userAvatarDiv);
-
-      // 暗色模式
-      document.getElementById('darkBtn').addEventListener('click', function() {
-        config.dark = !config.dark;
-        if (config.dark) document.documentElement.setAttribute('dark', '');
-        else document.documentElement.removeAttribute('dark');
-        localStorage.setItem('catpawCfg', JSON.stringify(config));
+      // 标签页切换
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.tab).classList.add('active');
+        });
+      });
+      document.querySelectorAll('.view-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.view + '-view').classList.add('active');
+        });
       });
 
-      document.getElementById('clearChat').addEventListener('click', function() {
-        if (confirm('确定清空所有聊天记录吗？')) {
-          messages = [];
-          localStorage.removeItem('catpawMsg');
-          renderMessages();
-        }
-      });
-
-      document.querySelectorAll('.emoji').forEach(em => {
-        em.addEventListener('click', function() { input.value += this.innerText; input.focus(); });
-      });
-
-      document.getElementById('exportCfg').addEventListener('click', function() {
-        const dataStr = JSON.stringify(config, null, 2);
-        const blob = new Blob([dataStr], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `catpaw-config-${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-      });
-
+      // 事件绑定
+      document.getElementById('fetchModelsBtn').addEventListener('click', fetchModels);
+      document.getElementById('modelSelect').addEventListener('change', e => { if(e.target.value) document.getElementById('model').value = e.target.value; });
+      document.getElementById('save').addEventListener('click', saveAll);
+      document.getElementById('darkBtn').addEventListener('click', () => { config.dark = !config.dark; saveConfig(); loadUI(); });
+      document.getElementById('clearChat').addEventListener('click', () => { if(confirm('清空聊天？')) { messages = []; saveMessages(); renderMessages(); } });
+      document.getElementById('clearQzoneBtn').addEventListener('click', () => { if(confirm('清空所有空间动态？')) { qzoneFeeds = []; saveQzone(); renderQzone(); } });
+      document.getElementById('publishPostBtn').addEventListener('click', publishPost);
+      document.getElementById('exportCfg').addEventListener('click', () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(config)])); a.download = 'catpaw-config.json'; a.click(); });
       document.getElementById('importCfg').addEventListener('click', () => document.getElementById('importFile').click());
-      document.getElementById('importFile').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
+      document.getElementById('importFile').addEventListener('change', e => {
+        const file = e.target.files[0]; if(!file) return;
         const reader = new FileReader();
-        reader.onload = (ev) => {
-          try {
-            const imported = JSON.parse(ev.target.result);
-            config = { ...config, ...imported };
-            localStorage.setItem('catpawCfg', JSON.stringify(config));
-            loadUI();
-            alert('导入成功');
-          } catch { alert('无效的配置文件'); }
-        };
+        reader.onload = ev => { try { const imported = JSON.parse(ev.target.result); config = { ...config, ...imported }; saveConfig(); loadUI(); alert('导入成功'); } catch(e) { alert('无效文件'); } };
         reader.readAsText(file);
       });
-
       sendBtn.addEventListener('click', sendMessage);
-      input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
-
+      input.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+      document.querySelectorAll('.emoji').forEach(em => { em.addEventListener('click', () => { input.value += em.innerText; input.focus(); }); });
       menuBtn.addEventListener('click', () => sidebar.classList.add('show'));
       closeBtn.addEventListener('click', () => sidebar.classList.remove('show'));
-      document.querySelector('.chat').addEventListener('click', () => {
-        if (window.innerWidth <= 768 && sidebar.classList.contains('show')) sidebar.classList.remove('show');
-      });
 
       // 长按复制
-      function showLongMenu(e) {
-        e.preventDefault();
-        const selection = window.getSelection().toString().trim();
-        if (!selection) return;
-        longMenu.innerHTML = '<div id="copyOption">📋 复制</div>';
-        longMenu.style.display = 'block';
-        longMenu.style.left = e.pageX + 'px';
-        longMenu.style.top = e.pageY + 'px';
-        document.getElementById('copyOption').onclick = function() {
-          navigator.clipboard.writeText(selection).then(() => alert('已复制')).catch(() => alert('复制失败'));
-          longMenu.style.display = 'none';
-        };
-        setTimeout(() => {
-          document.addEventListener('click', function hide() { longMenu.style.display = 'none'; document.removeEventListener('click', hide); }, { once: true });
-        }, 10);
-      }
-      msgBox.addEventListener('contextmenu', showLongMenu);
-      let touchTimer = null;
-      msgBox.addEventListener('touchstart', (e) => { touchTimer = setTimeout(() => showLongMenu(e), 500); });
-      msgBox.addEventListener('touchend', () => clearTimeout(touchTimer));
-      msgBox.addEventListener('touchmove', () => clearTimeout(touchTimer));
-
-      // 实时颜色预览
-      document.getElementById('bgColor').addEventListener('input', (e) => document.getElementById('chat').style.backgroundColor = e.target.value);
-      document.getElementById('userColor').addEventListener('input', (e) => document.documentElement.style.setProperty('--user-bubble', e.target.value));
-
-      // 启动
+      const msgContainer = document.getElementById('msgBox');
+      const longMenu = document.getElementById('longMenu');
+      msgContainer.addEventListener('contextmenu', (e) => { e.preventDefault(); const sel = window.getSelection().toString().trim(); if(sel) { longMenu.innerHTML = '<div id="copyOption">📋 复制</div>'; longMenu.style.display = 'block'; longMenu.style.left = e.pageX + 'px'; longMenu.style.top = e.pageY + 'px'; document.getElementById('copyOption').onclick = () => { navigator.clipboard.writeText(sel); longMenu.style.display = 'none'; }; setTimeout(() => { document.addEventListener('click', () => longMenu.style.display = 'none', { once: true }); }, 10); } });
+      
       loadUI();
       renderMessages();
+      renderQzone();
     })();
   </script>
 </body>

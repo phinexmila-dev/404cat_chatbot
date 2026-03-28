@@ -331,9 +331,9 @@
         <h2>🐾 404猫娘小爪机</h2>
         <div class="form-item"><label>🔐 API Key</label><input type="password" id="apiKey" placeholder="sk-..."></div>
         <div class="form-item">
-          <label>🌐 API 地址</label>
+          <label>🌐 API 地址（拉不了就加个/v1喵——）</label>
           <div class="button-group">
-            <input id="apiUrl" value="https://api.openai.com/v1/chat/completions">
+            <input id="apiUrl" value="https://什么都好喵/v1/chat/completions">
             <button class="small gray" id="fetchModelsBtn">拉取模型</button>
           </div>
         </div>
@@ -345,7 +345,7 @@
         </div>
         <div class="divider"></div>
         <div class="form-item"><label>🤖 AI 名称</label><input id="botName" value="404猫娘小爪机"></div>
-        <div class="form-item"><label>📝 AI 人设</label><textarea id="prompt">你是404猫娘小爪机，一只爱卖萌的猫娘，说话结尾带喵，喜欢用颜文字 (｡•̀ᴗ-)✧</textarea></div>
+        <div class="form-item"><label>📝 AI 人设</label><textarea id="prompt">你是404小猫娘，一只爱卖萌的男娘小猫，说话结尾带喵，喜欢用颜文字 (｡•̀ᴗ-)✧</textarea></div>
         <div class="form-item"><label>👤 用户人设</label><textarea id="userPrompt">你是404小猫娘的主人。</textarea></div>
         <div class="avatar-row">
           <div><label>😺 AI头像</label><input type="file" accept="image/*" id="botAvatarInput" style="display:none;"><div class="avatar" id="botAvatar">🐱</div></div>
@@ -565,7 +565,7 @@
     const qzone = new QZoneModule();
     let config = JSON.parse(localStorage.getItem('catpawCfg')) || {
       apiKey: '', apiUrl: 'https://api.openai.com/v1/chat/completions', model: 'gpt-3.5-turbo',
-      botName: '404猫娘小爪机', prompt: '你是404猫娘小爪机，一只爱卖萌的猫娘，说话结尾带喵，喜欢用颜文字 (｡•̀ᴗ-)✧',
+      botName: '404猫娘小爪机', prompt: '你是404小猫娘，一只爱卖萌的男娘小猫，说话结尾带喵，喜欢用颜文字 (｡•̀ᴗ-)✧',
       userPrompt: '你是404小猫娘的主人。', botAvatar: '🐱', userAvatar: '😏',
       bgColor: '#f5f7fa', userColor: '#409eff', dark: false, useBearer: true,
       qzoneNickname: '主人', qzoneAvatar: '😏', autoComment: true

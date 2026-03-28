@@ -43,7 +43,6 @@
     body { background: var(--bg); height: 100vh; overflow: hidden; color: var(--text); }
     .app { display: flex; height: 100vh; max-width: 100vw; }
 
-    /* 侧边栏 */
     .sidebar {
       width: 360px;
       background: var(--sidebar);
@@ -55,10 +54,11 @@
       top: 0;
       bottom: 0;
       z-index: 30;
-      transition: transform 0.25s;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 2px 0 12px var(--shadow);
     }
-    .sidebar.hide { transform: translateX(-100%); }
+    .sidebar.show { transform: translateX(0); }
     .close-btn {
       position: absolute;
       top: 16px;
@@ -71,6 +71,9 @@
       font-size: 1.4rem;
       cursor: pointer;
       color: var(--text2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .menu-btn {
       position: fixed;
@@ -90,33 +93,26 @@
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(64,158,255,0.3);
     }
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 8px;
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 25;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
     }
-    .tab-btn {
-      flex: 1;
-      background: transparent;
-      color: var(--text2);
-      border: none;
-      padding: 8px;
-      cursor: pointer;
-      border-radius: 20px;
-    }
+    .sidebar-overlay.show { opacity: 1; visibility: visible; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    .tab-btn { flex: 1; background: transparent; color: var(--text2); border: none; padding: 8px; cursor: pointer; border-radius: 20px; }
     .tab-btn.active { background: #409eff; color: white; }
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
     .form-item { margin-bottom: 1rem; }
-    .form-item label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text2);
-      margin-bottom: 0.3rem;
-    }
+    .form-item label { display: block; font-size: 0.75rem; font-weight: 500; color: var(--text2); margin-bottom: 0.3rem; }
     input, textarea, select, button {
       width: 100%;
       border: 1px solid var(--border);
@@ -126,12 +122,8 @@
       background: var(--input);
       color: var(--text);
     }
-    button {
-      background: #409eff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: #409eff; }
+    button { background: #409eff; color: white; border: none; cursor: pointer; }
     button.gray { background: transparent; color: var(--text); border: 1px solid var(--border); }
     button.small { padding: 8px 12px; font-size: 0.85rem; }
     .button-group { display: flex; gap: 8px; }
@@ -147,24 +139,18 @@
       background: var(--sidebar);
       cursor: pointer;
       border: 2px solid var(--border);
+      overflow: hidden;
     }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
     .avatar-row { display: flex; gap: 16px; margin-top: 4px; }
     .avatar-row > div { flex: 1; text-align: center; }
     .emoji-panel { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 0; }
-    .emoji {
-      font-size: 1.8rem;
-      padding: 4px;
-      cursor: pointer;
-      border-radius: 12px;
-      width: 2.4rem;
-      text-align: center;
-    }
+    .emoji { font-size: 1.8rem; padding: 4px; cursor: pointer; border-radius: 12px; width: 2.4rem; text-align: center; }
     .emoji:hover { background: var(--border); }
 
-    /* 主内容区 */
     .main-content {
       flex: 1;
-      margin-left: 360px;
+      margin-left: 0;
       display: flex;
       flex-direction: column;
       height: 100vh;
@@ -191,9 +177,39 @@
     .view-pane { display: none; height: 100%; overflow-y: auto; }
     .view-pane.active { display: block; }
 
-    /* 聊天样式 */
-    .msg-box { display: flex; flex-direction: column; gap: 10px; }
-    .msg-item { display: flex; gap: 8px; max-width: 88%; }
+    .chat-list { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+    .chat-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .chat-list-item:hover { background: var(--border); }
+    .chat-list-item.active { background: rgba(64, 158, 255, 0.1); border-left: 3px solid #409eff; }
+    .chat-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      background: var(--border);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .chat-info { flex: 1; min-width: 0; }
+    .chat-name { font-weight: 600; display: flex; align-items: center; gap: 6px; }
+    .last-msg { font-size: 0.75rem; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chat-time { font-size: 0.7rem; color: var(--text2); }
+    .unread-count { background: #ff4d4f; color: white; border-radius: 12px; padding: 2px 8px; font-size: 0.7rem; }
+
+    .msg-box { display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px; }
+    .msg-item { display: flex; gap: 8px; max-width: 88%; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .msg-item.user { margin-left: auto; flex-direction: row-reverse; }
     .msg-avatar {
       width: 38px;
@@ -205,20 +221,24 @@
       font-size: 1.5rem;
       background: var(--border);
       overflow: hidden;
+      flex-shrink: 0;
     }
     .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .msg-bubble {
-      padding: 12px 16px;
-      border-radius: 22px;
+      padding: 10px 14px;
+      border-radius: 20px;
       font-size: 0.95rem;
       line-height: 1.45;
       word-break: break-word;
     }
-    .msg-item.ai .msg-bubble { background: var(--ai-bubble); border-bottom-left-radius: 6px; }
-    .msg-item.user .msg-bubble { background: var(--user-bubble); color: white; border-bottom-right-radius: 6px; }
+    .msg-item.ai .msg-bubble { background: var(--ai-bubble); border-bottom-left-radius: 4px; }
+    .msg-item.user .msg-bubble { background: var(--user-bubble); color: white; border-bottom-right-radius: 4px; }
+    .timestamp { text-align: center; font-size: 0.7rem; color: var(--text2); margin: 8px 0; }
+    .loading-tip { text-align: center; color: var(--text2); padding: 12px; font-size: 0.85rem; }
+
     .input-bar {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       padding: 12px 16px;
       background: var(--sidebar);
       border-top: 1px solid var(--border);
@@ -226,7 +246,6 @@
     #input { flex: 1; padding: 12px 18px; border-radius: 30px; }
     #send { width: 70px; border-radius: 32px; }
 
-    /* QQ空间样式 - 修复 */
     .qzone-header {
       display: flex;
       gap: 12px;
@@ -245,10 +264,7 @@
       justify-content: center;
       font-size: 2rem;
       overflow: hidden;
-      flex-shrink: 0;
     }
-    .qzone-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .qzone-input-area { flex: 1; display: flex; flex-direction: column; gap: 10px; }
     .qzone-textarea {
       width: 100%;
       background: var(--input);
@@ -256,7 +272,6 @@
       border-radius: 20px;
       resize: none;
       border: 1px solid var(--border);
-      font-family: inherit;
     }
     .feed-list { display: flex; flex-direction: column; gap: 16px; }
     .qzone-feed-item {
@@ -264,23 +279,10 @@
       border-radius: 20px;
       padding: 16px;
     }
-    .feed-header { display: flex; gap: 12px; margin-bottom: 12px; position: relative; align-items: center; }
-    .qzone-avatar-img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
-    .qzone-avatar-emoji { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; background: var(--border); }
+    .feed-header { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; }
     .feed-info { flex: 1; }
-    .feed-name { font-weight: 600; font-size: 1rem; }
+    .feed-name { font-weight: 600; }
     .feed-time { font-size: 0.7rem; color: var(--text2); }
-    .feed-delete-btn {
-      background: transparent;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: var(--text2);
-      width: 32px;
-      padding: 0;
-      border-radius: 20px;
-    }
-    .feed-delete-btn:hover { background: var(--border); }
     .feed-content { margin: 12px 0; line-height: 1.5; white-space: pre-wrap; }
     .feed-stats { display: flex; gap: 16px; font-size: 0.8rem; color: var(--text2); margin-bottom: 8px; }
     .feed-actions-bar { display: flex; gap: 24px; padding-top: 8px; border-top: 1px solid var(--border); }
@@ -291,49 +293,52 @@
       padding: 6px 0;
       cursor: pointer;
       font-size: 0.85rem;
-      width: auto;
     }
     .feed-actions-bar button.liked { color: #ff4d4f; }
     .qzone-comments { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border); }
     .qzone-comment-item { display: flex; gap: 8px; padding: 6px 0; font-size: 0.85rem; }
-    .comment-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-    .comment-avatar-emoji { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--border); font-size: 1rem; flex-shrink: 0; }
-    .comment-content { flex: 1; word-break: break-word; }
-    .comment-name { font-weight: 500; color: #409eff; margin-right: 6px; }
-    .comment-text { color: var(--text); }
     .comment-input-area { display: flex; gap: 8px; margin-top: 12px; }
-    .comment-input-area input { flex: 1; padding: 8px 12px; font-size: 0.85rem; border-radius: 20px; }
-    .comment-input-area button { width: auto; padding: 8px 16px; font-size: 0.85rem; }
+    .comment-input-area input { flex: 1; padding: 8px 12px; border-radius: 20px; }
     .tip { text-align: center; color: var(--text2); padding: 30px 10px; }
-
-    @media (max-width: 768px) {
-      .sidebar { transform: translateX(-100%); }
-      .sidebar.show { transform: translateX(0); }
-      .main-content { margin-left: 0; }
-      .msg-item { max-width: 90%; }
+    @media (max-width: 768px) { .sidebar { width: 280px; } .msg-item { max-width: 90%; } }
+    
+    .message-actions-modal {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--sidebar);
+      border-radius: 20px 20px 0 0;
+      padding: 16px;
+      transform: translateY(100%);
+      transition: transform 0.3s;
+      z-index: 100;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
     }
+    .message-actions-modal.visible { transform: translateY(0); }
+    .message-actions-modal button { padding: 12px; margin: 4px 0; text-align: center; }
   </style>
 </head>
 <body>
   <button class="menu-btn" id="menuBtn">☰</button>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
   <div class="app">
-    <!-- 侧边栏 -->
     <div class="sidebar" id="sidebar">
       <button class="close-btn" id="closeBtn">✕</button>
       <div class="tabs">
         <button class="tab-btn active" data-tab="chat-tab">💬 聊天设置</button>
         <button class="tab-btn" data-tab="qzone-tab">📱 空间设置</button>
+        <button class="tab-btn" data-tab="chats-tab">📋 对话列表</button>
       </div>
 
-      <!-- 聊天设置 -->
       <div id="chat-tab" class="tab-pane active">
         <h2>🐾 404猫娘小爪机</h2>
         <div class="form-item"><label>🔐 API Key</label><input type="password" id="apiKey" placeholder="sk-..."></div>
         <div class="form-item">
-          <label>🌐 API 地址（拉不了就加个/v1喵——）</label>
+          <label>🌐 API 地址</label>
           <div class="button-group">
-            <input id="apiUrl" value="https://什么都好喵/v1/chat/completions">
+            <input id="apiUrl" value="https://api.openai.com/v1/chat/completions">
             <button class="small gray" id="fetchModelsBtn">拉取模型</button>
           </div>
         </div>
@@ -356,7 +361,6 @@
         <div class="button-group"><button class="small gray" id="darkBtn">🌓 深色切换</button><button id="save">💾 保存</button></div>
       </div>
 
-      <!-- 空间设置 -->
       <div id="qzone-tab" class="tab-pane">
         <h2>📸 QQ空间</h2>
         <div class="form-item"><label>📛 空间昵称</label><input id="qzoneNickname" value="主人"></div>
@@ -366,6 +370,15 @@
         <div class="form-item"><button class="small gray" id="clearQzoneBtn">🗑️ 清空所有动态</button></div>
       </div>
 
+      <div id="chats-tab" class="tab-pane">
+        <h2>📋 对话列表</h2>
+        <div class="button-group" style="margin-bottom: 16px;">
+          <button class="small gray" id="newChatBtn">✨ 新建对话</button>
+          <button class="small gray" id="clearAllChatsBtn">🗑️ 清空全部</button>
+        </div>
+        <div id="chatListContainer" class="chat-list"></div>
+      </div>
+
       <div class="divider"></div>
       <div class="emoji-panel">
         <span class="emoji">😊</span><span class="emoji">😂</span><span class="emoji">🥰</span>
@@ -373,14 +386,13 @@
         <span class="emoji">❤️</span><span class="emoji">🎉</span><span class="emoji">🐱</span>
       </div>
       <div class="button-group">
-        <button class="small gray" id="clearChat">🧹 清空聊天</button>
+        <button class="small gray" id="clearChat">🧹 清空当前聊天</button>
         <button class="small gray" id="exportCfg">📤 导出配置</button>
         <button class="small gray" id="importCfg">📥 导入配置</button>
         <input type="file" id="importFile" accept=".json" style="display:none;">
       </div>
     </div>
 
-    <!-- 主内容区 -->
     <div class="main-content">
       <div class="view-tabs">
         <button class="view-tab active" data-view="chat">💬 聊天</button>
@@ -399,7 +411,7 @@
             <div class="qzone-avatar" id="qzoneHeaderAvatar">😏</div>
             <div class="qzone-input-area">
               <textarea id="qzoneInput" class="qzone-textarea" rows="2" placeholder="分享新鲜事..."></textarea>
-              <button id="publishPostBtn" class="qzone-post-btn" style="width: auto; align-self: flex-end;">📢 发布说说</button>
+              <button id="publishPostBtn" style="width: auto; align-self: flex-end;">📢 发布说说</button>
             </div>
           </div>
           <div id="feedList" class="feed-list"></div>
@@ -408,161 +420,14 @@
     </div>
   </div>
 
+  <div id="message-actions-modal" class="message-actions-modal">
+    <button id="copy-message-btn">📋 复制消息</button>
+    <button id="delete-message-btn">🗑️ 删除消息</button>
+    <button id="close-modal-btn">取消</button>
+  </div>
+
   <script>
-    // ============================================
-    // QQ空间模块 - 完全修复
-    // ============================================
-    class QZoneModule {
-      constructor() {
-        this.posts = [];
-        this.currentUser = { nickname: '主人', avatar: '😏', avatarUrl: null };
-        this.aiUser = { nickname: '404猫娘小爪机', avatar: '🐱', avatarUrl: null };
-        this.autoComment = true;
-        this.loadFromStorage();
-      }
-
-      loadFromStorage() {
-        try {
-          const saved = localStorage.getItem('qzone_posts');
-          if (saved) this.posts = JSON.parse(saved);
-        } catch(e) { console.warn(e); }
-      }
-
-      saveToStorage() {
-        localStorage.setItem('qzone_posts', JSON.stringify(this.posts));
-      }
-
-      formatTime(timestamp) {
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diff = now - date;
-        if (diff < 60000) return '刚刚';
-        if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`;
-        if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`;
-        if (diff < 604800000) return `${Math.floor(diff / 86400000)}天前`;
-        return `${date.getMonth()+1}月${date.getDate()}日`;
-      }
-
-      publishPost(content) {
-        if (!content.trim()) return null;
-        const newPost = {
-          id: Date.now(),
-          authorName: this.currentUser.nickname,
-          authorAvatar: this.currentUser.avatarUrl || this.currentUser.avatar,
-          content: content.trim(),
-          timestamp: Date.now(),
-          likes: [],
-          comments: []
-        };
-        this.posts.unshift(newPost);
-        this.saveToStorage();
-        return newPost;
-      }
-
-      deletePost(postId) {
-        const index = this.posts.findIndex(p => p.id === postId);
-        if (index !== -1) { this.posts.splice(index, 1); this.saveToStorage(); return true; }
-        return false;
-      }
-
-      toggleLike(postId, userName) {
-        const post = this.posts.find(p => p.id === postId);
-        if (!post) return false;
-        const idx = post.likes.indexOf(userName);
-        if (idx === -1) post.likes.push(userName);
-        else post.likes.splice(idx, 1);
-        this.saveToStorage();
-        return idx === -1;
-      }
-
-      addComment(postId, commenterName, text, isAi = false) {
-        const post = this.posts.find(p => p.id === postId);
-        if (!post || !text.trim()) return null;
-        const comment = {
-          commenterName: commenterName,
-          text: text.trim(),
-          timestamp: Date.now(),
-          isAi: isAi
-        };
-        post.comments.push(comment);
-        this.saveToStorage();
-        return comment;
-      }
-
-      getAllPosts() { return [...this.posts]; }
-
-      escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
-      }
-
-      renderPost(post) {
-        const isLiked = post.likes.includes(this.currentUser.nickname);
-        let avatarHtml;
-        if (post.authorAvatar && post.authorAvatar.startsWith('data:')) {
-          avatarHtml = `<img src="${post.authorAvatar}" class="qzone-avatar-img">`;
-        } else {
-          avatarHtml = `<div class="qzone-avatar-emoji">${post.authorAvatar || '😺'}</div>`;
-        }
-        
-        let commentsHtml = '';
-        if (post.comments && post.comments.length > 0) {
-          commentsHtml = `<div class="qzone-comments">`;
-          post.comments.forEach(c => {
-            let cAvatar;
-            if (c.isAi) {
-              const aiAvatar = this.aiUser.avatarUrl || this.aiUser.avatar;
-              if (aiAvatar && aiAvatar.startsWith('data:')) cAvatar = `<img src="${aiAvatar}" class="comment-avatar">`;
-              else cAvatar = `<span class="comment-avatar-emoji">${aiAvatar}</span>`;
-            } else {
-              const userAvatar = this.currentUser.avatarUrl || this.currentUser.avatar;
-              if (userAvatar && userAvatar.startsWith('data:')) cAvatar = `<img src="${userAvatar}" class="comment-avatar">`;
-              else cAvatar = `<span class="comment-avatar-emoji">${userAvatar}</span>`;
-            }
-            commentsHtml += `
-              <div class="qzone-comment-item">
-                ${cAvatar}
-                <div class="comment-content">
-                  <span class="comment-name">${this.escapeHtml(c.commenterName)}</span>
-                  <span class="comment-text">${this.escapeHtml(c.text)}</span>
-                </div>
-              </div>
-            `;
-          });
-          commentsHtml += `</div>`;
-        }
-        
-        return `
-          <div class="qzone-feed-item" data-post-id="${post.id}">
-            <div class="feed-header">
-              ${avatarHtml}
-              <div class="feed-info">
-                <div class="feed-name">${this.escapeHtml(post.authorName)}</div>
-                <div class="feed-time">${this.formatTime(post.timestamp)}</div>
-              </div>
-              <button class="feed-delete-btn" data-id="${post.id}" title="删除">⋯</button>
-            </div>
-            <div class="feed-content">${this.escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
-            <div class="feed-stats">
-              <span>❤️ ${post.likes.length}</span>
-              <span>💬 ${post.comments.length}</span>
-            </div>
-            <div class="feed-actions-bar">
-              <button class="like-btn ${isLiked ? 'liked' : ''}" data-id="${post.id}">${isLiked ? '❤️ 已赞' : '🤍 点赞'}</button>
-              <button class="comment-toggle-btn" data-id="${post.id}">💬 评论</button>
-            </div>
-            ${commentsHtml}
-            <div class="comment-input-area" style="display: none;" data-id="${post.id}">
-              <input type="text" placeholder="写评论..." class="comment-input">
-              <button class="submit-comment-btn" data-id="${post.id}">发送</button>
-            </div>
-          </div>
-        `;
-      }
-    }
-
-    // 初始化全局变量
-    const qzone = new QZoneModule();
+    // ==================== 核心数据结构 ====================
     let config = JSON.parse(localStorage.getItem('catpawCfg')) || {
       apiKey: '', apiUrl: 'https://api.openai.com/v1/chat/completions', model: 'gpt-3.5-turbo',
       botName: '404猫娘小爪机', prompt: '你是404小猫娘，一只爱卖萌的男娘小猫，说话结尾带喵，喜欢用颜文字 (｡•̀ᴗ-)✧',
@@ -570,175 +435,266 @@
       bgColor: '#f5f7fa', userColor: '#409eff', dark: false, useBearer: true,
       qzoneNickname: '主人', qzoneAvatar: '😏', autoComment: true
     };
-    let messages = JSON.parse(localStorage.getItem('catpawMsg')) || [];
-
-    // DOM 元素
-    const sidebar = document.getElementById('sidebar');
-    const msgBox = document.getElementById('msgBox');
-    const input = document.getElementById('input');
-    const feedList = document.getElementById('feedList');
-    const sendBtn = document.getElementById('send');
-    const menuBtn = document.getElementById('menuBtn');
-    const closeBtn = document.getElementById('closeBtn');
-
-    function isEmoji(str) { return str && !str.startsWith('data:') && !str.startsWith('http') && str.length < 8 && !str.includes('/'); }
     
+    // 聊天存储结构
+    let chats = {};
+    let activeChatId = null;
+    
+    // QQ空间模块
+    let qzonePosts = [];
+    let qzoneUser = { nickname: '主人', avatar: '😏', avatarUrl: null };
+    let qzoneAiUser = { nickname: '404猫娘小爪机', avatar: '🐱', avatarUrl: null };
+    let qzoneAutoComment = true;
+    
+    // 初始化数据
+    function initStorage() {
+      const savedChats = localStorage.getItem('catpaw_chats');
+      if (savedChats) {
+        chats = JSON.parse(savedChats);
+      } else {
+        const defaultId = Date.now().toString();
+        chats[defaultId] = {
+          id: defaultId, name: '默认对话', history: [], isPinned: false
+        };
+        activeChatId = defaultId;
+      }
+      if (!activeChatId || !chats[activeChatId]) {
+        const first = Object.keys(chats)[0];
+        activeChatId = first || Date.now().toString();
+        if (!chats[activeChatId]) chats[activeChatId] = { id: activeChatId, name: '默认对话', history: [], isPinned: false };
+      }
+      saveChats();
+      
+      const savedPosts = localStorage.getItem('qzone_posts');
+      if (savedPosts) qzonePosts = JSON.parse(savedPosts);
+    }
+    
+    function saveChats() { localStorage.setItem('catpaw_chats', JSON.stringify(chats)); }
+    function saveQzone() { localStorage.setItem('qzone_posts', JSON.stringify(qzonePosts)); }
     function saveConfig() { localStorage.setItem('catpawCfg', JSON.stringify(config)); }
-    function saveMessages() { localStorage.setItem('catpawMsg', JSON.stringify(messages)); }
-
-    // 渲染聊天
+    
+    // 辅助函数
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+    function isEmoji(str) { return str && !str.startsWith('data:') && !str.startsWith('http') && str.length < 8 && !str.includes('/'); }
+    function formatTime(timestamp) {
+      if (!timestamp) return '';
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = now - date;
+      if (diff < 60000) return '刚刚';
+      if (diff < 3600000) return `${Math.floor(diff / 60000)}分钟前`;
+      if (diff < 86400000) return `${Math.floor(diff / 3600000)}小时前`;
+      if (diff < 604800000) return `${Math.floor(diff / 86400000)}天前`;
+      return `${date.getMonth()+1}/${date.getDate()}`;
+    }
+    
+    // 渲染聊天列表
+    function renderChatList() {
+      const container = document.getElementById('chatListContainer');
+      if (!container) return;
+      const sorted = Object.values(chats).sort((a,b) => (b.isPinned?1:0) - (a.isPinned?1:0));
+      if (sorted.length === 0) { container.innerHTML = '<div class="tip">暂无对话，点击新建对话喵~</div>'; return; }
+      container.innerHTML = '';
+      sorted.forEach(chat => {
+        const lastMsg = chat.history?.slice(-1)[0]?.text || '暂无消息';
+        const lastTime = formatTime(chat.history?.slice(-1)[0]?.timestamp);
+        const isActive = activeChatId === chat.id;
+        const avatarVal = chat.name.includes('猫娘') ? config.botAvatar : config.userAvatar;
+        const avatarHtml = (avatarVal && avatarVal.startsWith('data:')) ? `<img src="${avatarVal}" style="width:100%;height:100%;object-fit:cover;">` : (avatarVal || '😺');
+        const div = document.createElement('div');
+        div.className = `chat-list-item ${isActive ? 'active' : ''}`;
+        div.dataset.id = chat.id;
+        div.innerHTML = `
+          <div class="chat-avatar">${avatarHtml}</div>
+          <div class="chat-info">
+            <div class="chat-name">${escapeHtml(chat.name)}${chat.isPinned ? ' 📌' : ''}</div>
+            <div class="last-msg">${escapeHtml(lastMsg.substring(0, 30))}</div>
+          </div>
+          <div class="chat-time">${lastTime}</div>
+        `;
+        div.addEventListener('click', () => { switchChat(chat.id); if (window.innerWidth <= 768) closeSidebar(); });
+        div.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          const action = confirm(`操作: ${chat.name}\n确定置顶/取消置顶？\n取消则删除对话。`);
+          if (action) { chat.isPinned = !chat.isPinned; saveChats(); renderChatList(); }
+          else if (confirm(`删除对话 "${chat.name}"？`)) { delete chats[chat.id]; if (activeChatId === chat.id) { const remain = Object.keys(chats)[0]; activeChatId = remain || null; if (!activeChatId) { const newId = Date.now().toString(); chats[newId] = { id: newId, name: '默认对话', history: [], isPinned: false }; activeChatId = newId; } } saveChats(); renderChatList(); if (activeChatId) renderMessages(); }
+        });
+        container.appendChild(div);
+      });
+    }
+    
+    function switchChat(chatId) {
+      if (!chats[chatId]) return;
+      activeChatId = chatId;
+      saveChats();
+      renderChatList();
+      renderMessages();
+    }
+    
     function renderMessages() {
+      const msgBox = document.getElementById('msgBox');
       if (!msgBox) return;
+      const chat = chats[activeChatId];
+      if (!chat || !chat.history) { msgBox.innerHTML = '<div class="tip">🐱 没有消息，快和猫娘玩耍吧～</div>'; return; }
       msgBox.innerHTML = '';
-      if (messages.length === 0) { msgBox.innerHTML = '<div class="tip">🐱 没有消息，快和猫娘玩耍吧～</div>'; return; }
-      messages.forEach(msg => {
+      let lastTime = 0;
+      chat.history.forEach(msg => {
+        if (lastTime && msg.timestamp - lastTime > 3600000) {
+          const timeDiv = document.createElement('div'); timeDiv.className = 'timestamp'; timeDiv.textContent = new Date(msg.timestamp).toLocaleString(); msgBox.appendChild(timeDiv);
+        }
+        lastTime = msg.timestamp;
         const item = document.createElement('div');
         item.className = `msg-item ${msg.role}`;
+        item.dataset.timestamp = msg.timestamp;
         const avatarVal = msg.role === 'user' ? config.userAvatar : config.botAvatar;
-        let avatarHtml;
-        if (avatarVal && avatarVal.startsWith('data:')) {
-          avatarHtml = `<img class="msg-avatar" src="${avatarVal}">`;
-        } else {
-          avatarHtml = `<div class="msg-avatar">${avatarVal || (msg.role === 'user' ? '😏' : '🐱')}</div>`;
-        }
+        const avatarHtml = (avatarVal && avatarVal.startsWith('data:')) ? `<img class="msg-avatar" src="${avatarVal}">` : `<div class="msg-avatar">${avatarVal || (msg.role === 'user' ? '😏' : '🐱')}</div>`;
         item.innerHTML = `${avatarHtml}<div class="msg-bubble">${escapeHtml(msg.text).replace(/\n/g, '<br>')}</div>`;
+        item.addEventListener('contextmenu', (e) => { e.preventDefault(); window.selectedMsgTimestamp = msg.timestamp; document.getElementById('message-actions-modal')?.classList.add('visible'); });
         msgBox.appendChild(item);
       });
       msgBox.scrollTop = msgBox.scrollHeight;
     }
     
-    function addMessage(role, text) { messages.push({ role, text }); saveMessages(); renderMessages(); }
-    function escapeHtml(s) { return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
-
-    // 渲染QQ空间 - 使用事件委托方式避免绑定失效
-    function renderQzone() {
-      if (!feedList) return;
-      feedList.innerHTML = '';
-      const posts = qzone.getAllPosts();
-      if (posts.length === 0) { feedList.innerHTML = '<div class="tip">📭 还没有动态，发一条说说吧～</div>'; return; }
-      posts.forEach(post => {
-        const html = qzone.renderPost(post);
-        feedList.insertAdjacentHTML('beforeend', html);
-      });
+    function addMessage(role, text) {
+      if (!chats[activeChatId]) return;
+      chats[activeChatId].history.push({ role, text, timestamp: Date.now() });
+      saveChats();
+      renderMessages();
+      renderChatList();
     }
-
-    // 事件委托处理空间所有交互
-    function bindQzoneEvents() {
-      if (!feedList) return;
+    
+    async function sendMessage() {
+      const inputEl = document.getElementById('input');
+      const text = inputEl.value.trim();
+      if (!text) return;
+      if (!config.apiKey) { alert('请先配置API Key'); return; }
+      inputEl.value = '';
+      addMessage('user', text);
       
-      feedList.addEventListener('click', (e) => {
-        const target = e.target;
-        // 删除
-        if (target.classList.contains('feed-delete-btn')) {
-          const id = parseInt(target.dataset.id);
-          if (confirm('删除这条动态？')) {
-            qzone.deletePost(id);
-            renderQzone();
-          }
-          return;
-        }
-        // 点赞
-        if (target.classList.contains('like-btn')) {
-          const id = parseInt(target.dataset.id);
-          qzone.toggleLike(id, qzone.currentUser.nickname);
-          renderQzone();
-          return;
-        }
-        // 切换评论框
-        if (target.classList.contains('comment-toggle-btn')) {
-          const id = target.dataset.id;
-          const area = feedList.querySelector(`.comment-input-area[data-id="${id}"]`);
-          if (area) area.style.display = area.style.display === 'none' ? 'flex' : 'none';
-          return;
-        }
-        // 提交评论
-        if (target.classList.contains('submit-comment-btn')) {
-          const id = parseInt(target.dataset.id);
-          const area = feedList.querySelector(`.comment-input-area[data-id="${id}"]`);
-          const commentInput = area ? area.querySelector('.comment-input') : null;
-          if (commentInput && commentInput.value.trim()) {
-            qzone.addComment(id, qzone.currentUser.nickname, commentInput.value.trim());
-            renderQzone();
-          }
-          return;
-        }
-      });
-    }
-
-    // AI自动评论
-    async function autoCommentOnPost(postId, content) {
-      if (!config.autoComment || !config.apiKey) return;
+      const chat = chats[activeChatId];
+      const loadingDiv = document.createElement('div'); loadingDiv.className = 'loading-tip'; loadingDiv.innerText = '🐾 猫娘思考中...';
+      document.getElementById('msgBox').appendChild(loadingDiv);
+      document.getElementById('msgBox').scrollTop = document.getElementById('msgBox').scrollHeight;
+      
       try {
         const headers = { 'Content-Type': 'application/json' };
         if (config.useBearer) headers['Authorization'] = `Bearer ${config.apiKey}`;
         else headers['Authorization'] = config.apiKey;
         
+        const recentFeeds = qzonePosts.slice(0, 2).map(f => `${f.authorName}:${f.content.slice(0,40)}`).join('；');
+        const systemMsg = `${config.prompt}\n(重要：${config.userPrompt})\n主人最近的动态：${recentFeeds || '暂无'}`;
+        
+        const messagesForAI = chat.history.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }));
+        
         const res = await fetch(config.apiUrl, {
-          method: 'POST',
-          headers: headers,
+          method: 'POST', headers,
           body: JSON.stringify({
             model: config.model,
-            messages: [
-              { role: 'system', content: `${config.prompt}\n你的主人发了一条说说："${content.slice(0, 100)}"，请写一条简短的评论回复。只输出评论内容，保持猫娘风格。` },
-              { role: 'user', content: '请评论' }
-            ],
-            temperature: 0.9,
-            max_tokens: 100
+            messages: [{ role: 'system', content: systemMsg }, ...messagesForAI],
+            temperature: 0.8,
+            max_tokens: 800
           })
         });
-        if (!res.ok) return;
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        const comment = data.choices?.[0]?.message?.content?.trim() || '喵~ 这个说说好有趣！(｡•̀ᴗ-)✧';
-        qzone.addComment(postId, config.botName, comment, true);
-        renderQzone();
-      } catch(e) { console.error('AI评论失败', e); }
+        const reply = data.choices?.[0]?.message?.content || '喵？没有收到回复呢...';
+        addMessage('ai', reply);
+      } catch(e) {
+        addMessage('ai', `⚠️ 出错了: ${e.message}`);
+      } finally {
+        if (loadingDiv.parentNode) loadingDiv.remove();
+      }
     }
-
-    // 发布说说
-    async function publishPost() {
+    
+    // QQ空间渲染
+    function renderQzone() {
+      const feedList = document.getElementById('feedList');
+      if (!feedList) return;
+      if (qzonePosts.length === 0) { feedList.innerHTML = '<div class="tip">📭 还没有动态，发一条说说吧～</div>'; return; }
+      feedList.innerHTML = '';
+      qzonePosts.forEach(post => {
+        const isLiked = post.likes?.includes(qzoneUser.nickname) || false;
+        const avatarHtml = (post.authorAvatar && post.authorAvatar.startsWith('data:')) ? `<img src="${post.authorAvatar}" style="width:44px;height:44px;border-radius:50%;object-fit:cover;">` : `<div style="width:44px;height:44px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:1.8rem;">${post.authorAvatar || '😺'}</div>`;
+        let commentsHtml = '';
+        if (post.comments?.length) {
+          commentsHtml = `<div class="qzone-comments">`;
+          post.comments.forEach(c => {
+            const cAvatar = (c.isAi && qzoneAiUser.avatarUrl) ? `<img src="${qzoneAiUser.avatarUrl}" style="width:28px;height:28px;border-radius:50%;">` : `<span style="width:28px;height:28px;border-radius:50%;background:var(--border);display:inline-flex;align-items:center;justify-content:center;">${c.isAi ? (qzoneAiUser.avatar || '🐱') : (qzoneUser.avatar || '😏')}</span>`;
+            commentsHtml += `<div class="qzone-comment-item">${cAvatar}<div class="comment-content"><span class="comment-name">${escapeHtml(c.commenterName)}</span> <span>${escapeHtml(c.text)}</span></div></div>`;
+          });
+          commentsHtml += `</div>`;
+        }
+        const feedDiv = document.createElement('div');
+        feedDiv.className = 'qzone-feed-item';
+        feedDiv.dataset.id = post.id;
+        feedDiv.innerHTML = `
+          <div class="feed-header">${avatarHtml}<div class="feed-info"><div class="feed-name">${escapeHtml(post.authorName)}</div><div class="feed-time">${formatTime(post.timestamp)}</div></div><button class="feed-delete-btn" data-id="${post.id}" style="background:none;border:none;font-size:1.2rem;cursor:pointer;">⋯</button></div>
+          <div class="feed-content">${escapeHtml(post.content).replace(/\n/g, '<br>')}</div>
+          <div class="feed-stats"><span>❤️ ${post.likes?.length || 0}</span><span>💬 ${post.comments?.length || 0}</span></div>
+          <div class="feed-actions-bar"><button class="like-btn ${isLiked ? 'liked' : ''}" data-id="${post.id}">${isLiked ? '❤️ 已赞' : '🤍 点赞'}</button><button class="comment-toggle-btn" data-id="${post.id}">💬 评论</button></div>
+          ${commentsHtml}
+          <div class="comment-input-area" style="display:none;" data-id="${post.id}"><input type="text" placeholder="写评论..." class="comment-input"><button class="submit-comment-btn" data-id="${post.id}">发送</button></div>
+        `;
+        feedList.appendChild(feedDiv);
+      });
+    }
+    
+    function bindQzoneEvents() {
+      const feedList = document.getElementById('feedList');
+      if (!feedList) return;
+      feedList.addEventListener('click', (e) => {
+        const target = e.target;
+        if (target.classList.contains('feed-delete-btn')) {
+          const id = parseInt(target.dataset.id);
+          if (confirm('删除这条动态？')) { qzonePosts = qzonePosts.filter(p => p.id !== id); saveQzone(); renderQzone(); }
+        } else if (target.classList.contains('like-btn')) {
+          const id = parseInt(target.dataset.id);
+          const post = qzonePosts.find(p => p.id === id);
+          if (post) { if (!post.likes) post.likes = []; const idx = post.likes.indexOf(qzoneUser.nickname); if (idx === -1) post.likes.push(qzoneUser.nickname); else post.likes.splice(idx, 1); saveQzone(); renderQzone(); }
+        } else if (target.classList.contains('comment-toggle-btn')) {
+          const id = target.dataset.id;
+          const area = feedList.querySelector(`.comment-input-area[data-id="${id}"]`);
+          if (area) area.style.display = area.style.display === 'none' ? 'flex' : 'none';
+        } else if (target.classList.contains('submit-comment-btn')) {
+          const id = parseInt(target.dataset.id);
+          const area = feedList.querySelector(`.comment-input-area[data-id="${id}"]`);
+          const input = area?.querySelector('.comment-input');
+          if (input && input.value.trim()) {
+            const post = qzonePosts.find(p => p.id === id);
+            if (post) { if (!post.comments) post.comments = []; post.comments.push({ commenterName: qzoneUser.nickname, text: input.value.trim(), timestamp: Date.now(), isAi: false }); saveQzone(); renderQzone(); }
+          }
+        }
+      });
+    }
+    
+    function publishPost() {
       const textarea = document.getElementById('qzoneInput');
-      if (!textarea) return;
-      const content = textarea.value.trim();
-      if (!content) return;
-      const newPost = qzone.publishPost(content);
+      if (!textarea || !textarea.value.trim()) return;
+      const newPost = { id: Date.now(), authorName: qzoneUser.nickname, authorAvatar: qzoneUser.avatarUrl || qzoneUser.avatar, content: textarea.value.trim(), timestamp: Date.now(), likes: [], comments: [] };
+      qzonePosts.unshift(newPost);
+      saveQzone();
       textarea.value = '';
       renderQzone();
-      if (newPost && config.autoComment) autoCommentOnPost(newPost.id, content);
+      if (qzoneAutoComment && config.apiKey) autoCommentOnPost(newPost.id, newPost.content);
     }
-
-    // 发送聊天消息
-    async function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
-      if (!config.apiKey) { alert('请先配置API Key'); return; }
-      input.value = '';
-      addMessage('user', text);
-      
-      const recentFeeds = qzone.getAllPosts().slice(0, 3).map(f => `「${f.authorName}：${f.content.slice(0, 50)}」`).join('；');
-      const systemContent = `${config.prompt}\n(重要：${config.userPrompt})\n主人最近的QQ空间动态：${recentFeeds || '暂无'}。`;
-      
-      const loadDiv = document.createElement('div'); loadDiv.className = 'tip'; loadDiv.innerText = '🐾 猫娘思考中...';
-      msgBox.appendChild(loadDiv); msgBox.scrollTop = msgBox.scrollHeight;
+    
+    async function autoCommentOnPost(postId, content) {
       try {
         const headers = { 'Content-Type': 'application/json' };
         if (config.useBearer) headers['Authorization'] = `Bearer ${config.apiKey}`;
         else headers['Authorization'] = config.apiKey;
         const res = await fetch(config.apiUrl, {
           method: 'POST', headers,
-          body: JSON.stringify({
-            model: config.model,
-            messages: [{ role: 'system', content: systemContent }, ...messages.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text }))],
-            temperature: 0.8, max_tokens: 800
-          })
+          body: JSON.stringify({ model: config.model, messages: [{ role: 'system', content: `${config.prompt}\n主人发了说说："${content.slice(0,80)}"，写一条简短的猫娘风格评论，只输出评论内容。` }, { role: 'user', content: '评论' }], temperature: 0.9, max_tokens: 80 })
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) return;
         const data = await res.json();
-        addMessage('ai', data.choices?.[0]?.message?.content || '喵？');
-      } catch(e) { addMessage('ai', '⚠️ ' + e.message); }
-      finally { if (loadDiv.parentNode) loadDiv.remove(); }
+        const commentText = data.choices?.[0]?.message?.content?.trim() || '喵~ 好有趣的说！(｡•̀ᴗ-)✧';
+        const post = qzonePosts.find(p => p.id === postId);
+        if (post) { if (!post.comments) post.comments = []; post.comments.push({ commenterName: config.botName, text: commentText, timestamp: Date.now(), isAi: true }); saveQzone(); renderQzone(); }
+      } catch(e) { console.warn('AI评论失败'); }
     }
-
-    // UI加载
+    
     function loadUI() {
       document.getElementById('apiKey').value = config.apiKey || '';
       document.getElementById('apiUrl').value = config.apiUrl;
@@ -748,181 +704,120 @@
       document.getElementById('userPrompt').value = config.userPrompt;
       document.getElementById('bgColor').value = config.bgColor;
       document.getElementById('userColor').value = config.userColor;
-      document.getElementById('useBearer').checked = config.useBearer !== false;
-      document.getElementById('qzoneNickname').value = config.qzoneNickname || '主人';
-      document.getElementById('autoCommentSwitch').checked = config.autoComment !== false;
-      qzone.currentUser.nickname = config.qzoneNickname || '主人';
-      qzone.aiUser.nickname = config.botName;
-      qzone.autoComment = config.autoComment;
+      document.getElementById('useBearer').checked = config.useBearer;
+      document.getElementById('qzoneNickname').value = config.qzoneNickname;
+      document.getElementById('autoCommentSwitch').checked = config.autoComment;
+      qzoneUser.nickname = config.qzoneNickname || '主人';
+      qzoneAutoComment = config.autoComment;
+      qzoneUser.avatar = config.qzoneAvatar;
+      qzoneUser.avatarUrl = isEmoji(config.qzoneAvatar) ? null : config.qzoneAvatar;
+      qzoneAiUser.nickname = config.botName;
+      qzoneAiUser.avatar = config.botAvatar;
+      qzoneAiUser.avatarUrl = isEmoji(config.botAvatar) ? null : config.botAvatar;
       
-      config.qzoneAvatar = config.qzoneAvatar || '😏';
-      const qzoneAvatarDiv = document.getElementById('qzoneAvatar');
-      if (qzoneAvatarDiv) {
-        if (isEmoji(config.qzoneAvatar)) { qzoneAvatarDiv.innerText = config.qzoneAvatar; qzoneAvatarDiv.style.fontSize = '3rem'; qzoneAvatarDiv.innerHTML = config.qzoneAvatar; }
-        else { qzoneAvatarDiv.innerHTML = `<img src="${config.qzoneAvatar}" style="width:100%;height:100%;border-radius:50%;">`; }
-      }
-      const headerAvatar = document.getElementById('qzoneHeaderAvatar');
-      if (headerAvatar) {
-        if (isEmoji(config.qzoneAvatar)) headerAvatar.innerText = config.qzoneAvatar;
-        else headerAvatar.innerHTML = `<img src="${config.qzoneAvatar}" style="width:100%;height:100%;border-radius:50%;">`;
-      }
-      qzone.currentUser.avatarUrl = isEmoji(config.qzoneAvatar) ? null : config.qzoneAvatar;
-      qzone.currentUser.avatar = config.qzoneAvatar;
-      qzone.aiUser.avatarUrl = isEmoji(config.botAvatar) ? null : config.botAvatar;
-      qzone.aiUser.avatar = config.botAvatar;
-      
+      const qzoneAv = document.getElementById('qzoneAvatar');
+      if (qzoneAv) { if (isEmoji(config.qzoneAvatar)) { qzoneAv.innerText = config.qzoneAvatar; qzoneAv.innerHTML = config.qzoneAvatar; } else qzoneAv.innerHTML = `<img src="${config.qzoneAvatar}" style="width:100%;height:100%;border-radius:50%;">`; }
+      const headerAv = document.getElementById('qzoneHeaderAvatar');
+      if (headerAv) { if (isEmoji(config.qzoneAvatar)) headerAv.innerText = config.qzoneAvatar; else headerAv.innerHTML = `<img src="${config.qzoneAvatar}" style="width:100%;height:100%;border-radius:50%;">`; }
       const botDiv = document.getElementById('botAvatar');
-      if (botDiv) {
-        if (isEmoji(config.botAvatar)) { botDiv.innerText = config.botAvatar; botDiv.style.fontSize = '2.5rem'; botDiv.innerHTML = config.botAvatar; }
-        else { botDiv.innerHTML = `<img src="${config.botAvatar}" style="width:100%;height:100%;border-radius:50%;">`; }
-      }
+      if (botDiv) { if (isEmoji(config.botAvatar)) { botDiv.innerText = config.botAvatar; botDiv.innerHTML = config.botAvatar; } else botDiv.innerHTML = `<img src="${config.botAvatar}" style="width:100%;height:100%;border-radius:50%;">`; }
       const userDiv = document.getElementById('userAvatar');
-      if (userDiv) {
-        if (isEmoji(config.userAvatar)) { userDiv.innerText = config.userAvatar; userDiv.style.fontSize = '2.5rem'; userDiv.innerHTML = config.userAvatar; }
-        else { userDiv.innerHTML = `<img src="${config.userAvatar}" style="width:100%;height:100%;border-radius:50%;">`; }
-      }
-      
+      if (userDiv) { if (isEmoji(config.userAvatar)) { userDiv.innerText = config.userAvatar; userDiv.innerHTML = config.userAvatar; } else userDiv.innerHTML = `<img src="${config.userAvatar}" style="width:100%;height:100%;border-radius:50%;">`; }
       if (config.dark) document.documentElement.setAttribute('dark', '');
       else document.documentElement.removeAttribute('dark');
+      document.documentElement.style.setProperty('--user-bubble', config.userColor);
       const chatView = document.getElementById('chat-view');
       if (chatView) chatView.style.backgroundColor = config.bgColor;
-      document.documentElement.style.setProperty('--user-bubble', config.userColor);
     }
-
-   function saveAll() {
-  // 获取并自动补全API地址
-  let apiUrl = document.getElementById('apiUrl').value.trim();
-  if (apiUrl && !apiUrl.endsWith('/chat/completions')) {
-    if (apiUrl.endsWith('/v1')) {
-      apiUrl = apiUrl + '/chat/completions';
-    } else if (apiUrl.endsWith('/')) {
-      apiUrl = apiUrl + 'v1/chat/completions';
-    } else {
-      apiUrl = apiUrl + '/v1/chat/completions';
+    
+    function saveAllSettings() {
+      let apiUrl = document.getElementById('apiUrl').value.trim();
+      if (apiUrl && !apiUrl.endsWith('/chat/completions')) {
+        if (apiUrl.endsWith('/v1')) apiUrl = apiUrl + '/chat/completions';
+        else if (apiUrl.endsWith('/')) apiUrl = apiUrl + 'v1/chat/completions';
+        else apiUrl = apiUrl + '/v1/chat/completions';
+        document.getElementById('apiUrl').value = apiUrl;
+      }
+      config.apiKey = document.getElementById('apiKey').value.trim();
+      config.apiUrl = apiUrl;
+      config.model = document.getElementById('model').value.trim();
+      config.botName = document.getElementById('botName').value.trim();
+      config.prompt = document.getElementById('prompt').value.trim();
+      config.userPrompt = document.getElementById('userPrompt').value.trim();
+      config.bgColor = document.getElementById('bgColor').value;
+      config.userColor = document.getElementById('userColor').value;
+      config.useBearer = document.getElementById('useBearer').checked;
+      config.qzoneNickname = document.getElementById('qzoneNickname').value.trim();
+      config.autoComment = document.getElementById('autoCommentSwitch').checked;
+      saveConfig();
+      loadUI();
+      alert('配置已保存');
+      closeSidebar();
     }
-    document.getElementById('apiUrl').value = apiUrl;
-  }
-  
-  config.apiKey = document.getElementById('apiKey').value.trim();
-  config.apiUrl = apiUrl;
-  config.model = document.getElementById('model').value.trim();
-  config.botName = document.getElementById('botName').value.trim();
-  config.prompt = document.getElementById('prompt').value.trim();
-  config.userPrompt = document.getElementById('userPrompt').value.trim();
-  config.bgColor = document.getElementById('bgColor').value;
-  config.userColor = document.getElementById('userColor').value;
-  config.useBearer = document.getElementById('useBearer').checked;
-  config.qzoneNickname = document.getElementById('qzoneNickname').value.trim();
-  config.autoComment = document.getElementById('autoCommentSwitch').checked;
-  saveConfig();
-  loadUI();
-  alert('配置已保存');
-  sidebar.classList.remove('show');
-}
-
-    // 头像上传
-    function setupAvatar(triggerId, inputId, key, displayId) {
+    
+    function setupAvatar(triggerId, inputId, key) {
       const trigger = document.getElementById(triggerId);
       const fileInput = document.getElementById(inputId);
-      if (trigger && fileInput) {
-        trigger.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', function(e) {
-          const file = e.target.files[0]; if (!file) return;
-          const reader = new FileReader();
-          reader.onload = (ev) => { config[key] = ev.target.result; saveConfig(); loadUI(); };
-          reader.readAsDataURL(file);
-        });
-      }
+      if (trigger && fileInput) { trigger.addEventListener('click', () => fileInput.click()); fileInput.addEventListener('change', e => { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = ev => { config[key] = ev.target.result; saveConfig(); loadUI(); }; r.readAsDataURL(f); } }); }
     }
-    setupAvatar('botAvatar', 'botAvatarInput', 'botAvatar', 'botAvatar');
-    setupAvatar('userAvatar', 'userAvatarInput', 'userAvatar', 'userAvatar');
-    setupAvatar('qzoneAvatar', 'qzoneAvatarInput', 'qzoneAvatar', 'qzoneAvatar');
-
-  // 拉取模型 - 自动补全API地址
-async function fetchModels() {
-  const apiKey = document.getElementById('apiKey').value.trim();
-  let baseUrl = document.getElementById('apiUrl').value.trim();
-  
-  // 自动补全逻辑
-  if (!baseUrl) {
-    baseUrl = 'https://api.openai.com/v1/chat/completions';
-  }
-  // 如果末尾没有 /chat/completions，自动补全
-  if (!baseUrl.endsWith('/chat/completions')) {
-    if (baseUrl.endsWith('/v1')) {
-      baseUrl = baseUrl + '/chat/completions';
-    } else if (baseUrl.endsWith('/')) {
-      baseUrl = baseUrl + 'v1/chat/completions';
-    } else if (!baseUrl.includes('/chat/completions')) {
-      baseUrl = baseUrl + '/v1/chat/completions';
+    
+    async function fetchModels() {
+      const apiKey = document.getElementById('apiKey').value.trim();
+      let baseUrl = document.getElementById('apiUrl').value.trim();
+      if (!baseUrl) baseUrl = 'https://api.openai.com/v1/chat/completions';
+      if (!apiKey) { alert('请填写API Key'); return; }
+      let modelsUrl = baseUrl.replace('/chat/completions', '/models');
+      const headers = { 'Content-Type': 'application/json' };
+      if (document.getElementById('useBearer').checked) headers['Authorization'] = `Bearer ${apiKey}`;
+      else headers['Authorization'] = apiKey;
+      const selectEl = document.getElementById('modelSelect');
+      selectEl.innerHTML = '<option>加载中...</option>';
+      try {
+        const res = await fetch(modelsUrl, { method: 'GET', headers });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const list = data.data || data;
+        selectEl.innerHTML = '<option value="">-- 选择模型 --</option>';
+        if (Array.isArray(list)) list.forEach(m => { if (m.id) { const opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.id; selectEl.appendChild(opt); } });
+      } catch(e) { alert('拉取失败: ' + e.message); selectEl.innerHTML = '<option value="">-- 拉取失败 --</option>'; }
     }
-  }
-  
-  if (!apiKey) { alert('请填写API Key'); return; }
-  
-  // 从 /chat/completions 推导 models 地址
-  let modelsUrl = baseUrl.replace('/chat/completions', '/models');
-  
-  const selectEl = document.getElementById('modelSelect');
-  selectEl.innerHTML = '<option>加载中...</option>';
-  const headers = { 'Content-Type': 'application/json' };
-  if (document.getElementById('useBearer').checked) headers['Authorization'] = `Bearer ${apiKey}`;
-  else headers['Authorization'] = apiKey;
-  try {
-    const res = await fetch(modelsUrl, { method: 'GET', headers });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    let list = data.data || data;
-    if (!Array.isArray(list)) list = [];
-    selectEl.innerHTML = '<option value="">-- 选择模型 --</option>';
-    list.forEach(m => { if (m.id) { let opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.id; selectEl.appendChild(opt); } });
-    // 同时更新API地址输入框为补全后的地址
-    document.getElementById('apiUrl').value = baseUrl;
-  } catch(e) { alert('拉取失败: ' + e.message); selectEl.innerHTML = '<option value="">-- 拉取失败 --</option>'; }
-}
-
+    
+    // 侧边栏控制
+    function openSidebar() { document.getElementById('sidebar').classList.add('show'); document.getElementById('sidebarOverlay').classList.add('show'); document.body.style.overflow = 'hidden'; }
+    function closeSidebar() { document.getElementById('sidebar').classList.remove('show'); document.getElementById('sidebarOverlay').classList.remove('show'); document.body.style.overflow = ''; }
+    
     // 事件绑定
-    document.getElementById('fetchModelsBtn')?.addEventListener('click', fetchModels);
-    document.getElementById('modelSelect')?.addEventListener('change', e => { if(e.target.value) document.getElementById('model').value = e.target.value; });
-    document.getElementById('save')?.addEventListener('click', saveAll);
+    document.getElementById('menuBtn')?.addEventListener('click', openSidebar);
+    document.getElementById('closeBtn')?.addEventListener('click', closeSidebar);
+    document.getElementById('sidebarOverlay')?.addEventListener('click', closeSidebar);
+    document.getElementById('send')?.addEventListener('click', sendMessage);
+    document.getElementById('input')?.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    document.getElementById('save')?.addEventListener('click', saveAllSettings);
     document.getElementById('darkBtn')?.addEventListener('click', () => { config.dark = !config.dark; saveConfig(); loadUI(); });
-    document.getElementById('clearChat')?.addEventListener('click', () => { if(confirm('清空聊天？')) { messages = []; saveMessages(); renderMessages(); } });
-    document.getElementById('clearQzoneBtn')?.addEventListener('click', () => { if(confirm('清空所有动态？')) { qzone.posts = []; qzone.saveToStorage(); renderQzone(); } });
+    document.getElementById('clearChat')?.addEventListener('click', () => { if (confirm('清空当前对话？')) { if (chats[activeChatId]) { chats[activeChatId].history = []; saveChats(); renderMessages(); renderChatList(); } } });
+    document.getElementById('clearAllChatsBtn')?.addEventListener('click', () => { if (confirm('清空所有对话？')) { chats = {}; const newId = Date.now().toString(); chats[newId] = { id: newId, name: '默认对话', history: [], isPinned: false }; activeChatId = newId; saveChats(); renderChatList(); renderMessages(); } });
+    document.getElementById('newChatBtn')?.addEventListener('click', () => { const name = prompt('对话名称:', `对话 ${Object.keys(chats).length+1}`); const newId = Date.now().toString(); chats[newId] = { id: newId, name: name || `对话 ${Object.keys(chats).length+1}`, history: [], isPinned: false }; activeChatId = newId; saveChats(); renderChatList(); renderMessages(); closeSidebar(); });
+    document.getElementById('clearQzoneBtn')?.addEventListener('click', () => { if (confirm('清空所有动态？')) { qzonePosts = []; saveQzone(); renderQzone(); } });
     document.getElementById('publishPostBtn')?.addEventListener('click', publishPost);
     document.getElementById('exportCfg')?.addEventListener('click', () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(config)])); a.download = 'catpaw-config.json'; a.click(); });
     document.getElementById('importCfg')?.addEventListener('click', () => document.getElementById('importFile').click());
-    document.getElementById('importFile')?.addEventListener('change', e => {
-      const file = e.target.files[0]; if(!file) return;
-      const reader = new FileReader();
-      reader.onload = ev => { try { const imported = JSON.parse(ev.target.result); config = { ...config, ...imported }; saveConfig(); loadUI(); alert('导入成功'); } catch(e) { alert('无效文件'); } };
-      reader.readAsText(file);
-    });
-    sendBtn?.addEventListener('click', sendMessage);
-    input?.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
-    document.querySelectorAll('.emoji').forEach(em => { em.addEventListener('click', () => { if(input) input.value += em.innerText; input?.focus(); }); });
-    menuBtn?.addEventListener('click', () => sidebar.classList.add('show'));
-    closeBtn?.addEventListener('click', () => sidebar.classList.remove('show'));
-
-    // 标签页切换
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-      });
-    });
-    document.querySelectorAll('.view-tab').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.view + '-view').classList.add('active');
-      });
-    });
-
-    // 启动
+    document.getElementById('importFile')?.addEventListener('change', e => { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = ev => { try { const imp = JSON.parse(ev.target.result); config = { ...config, ...imp }; saveConfig(); loadUI(); alert('导入成功'); } catch(e) { alert('无效文件'); } }; r.readAsText(f); } });
+    document.getElementById('fetchModelsBtn')?.addEventListener('click', fetchModels);
+    document.getElementById('modelSelect')?.addEventListener('change', e => { if (e.target.value) document.getElementById('model').value = e.target.value; });
+    document.querySelectorAll('.emoji').forEach(em => { em.addEventListener('click', () => { const inp = document.getElementById('input'); if (inp) inp.value += em.innerText; inp?.focus(); }); });
+    document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active'); }); });
+    document.querySelectorAll('.view-tab').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.view-tab').forEach(b => b.classList.remove('active')); document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.view + '-view').classList.add('active'); }); });
+    document.getElementById('copy-message-btn')?.addEventListener('click', () => { const chat = chats[activeChatId]; const msg = chat?.history?.find(m => m.timestamp === window.selectedMsgTimestamp); if (msg) { navigator.clipboard.writeText(msg.text); alert('已复制'); } document.getElementById('message-actions-modal')?.classList.remove('visible'); });
+    document.getElementById('delete-message-btn')?.addEventListener('click', () => { if (window.selectedMsgTimestamp && confirm('删除此消息？')) { const idx = chats[activeChatId]?.history?.findIndex(m => m.timestamp === window.selectedMsgTimestamp); if (idx !== undefined && idx !== -1) { chats[activeChatId].history.splice(idx, 1); saveChats(); renderMessages(); renderChatList(); } } document.getElementById('message-actions-modal')?.classList.remove('visible'); });
+    document.getElementById('close-modal-btn')?.addEventListener('click', () => { document.getElementById('message-actions-modal')?.classList.remove('visible'); });
+    
+    setupAvatar('botAvatar', 'botAvatarInput', 'botAvatar');
+    setupAvatar('userAvatar', 'userAvatarInput', 'userAvatar');
+    setupAvatar('qzoneAvatar', 'qzoneAvatarInput', 'qzoneAvatar');
+    
+    initStorage();
     loadUI();
+    renderChatList();
     renderMessages();
     renderQzone();
     bindQzoneEvents();
